@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>наш.эдженси - Windows 95</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'MS Sans Serif';
+            src: local('MS Sans Serif'), local('Microsoft Sans Serif');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+            background: #008080;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #desktop {
+            min-height: 100vh;
+            background: #008080;
+            position: relative;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            z-index: 1000;
+            box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+        }
+
+        .start-button {
+            height: 32px;
+            padding: 0 20px;
+            background: #c0c0c0;
+            border: 2px outset #ffffff;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .start-button:active {
+            border-style: inset;
+        }
+
+        .window {
+            background: #c0c0c0;
+            border: 2px outset #ffffff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            position: relative;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .title-bar {
+            background: linear-gradient(90deg, #000080, #1084d0);
+            color: white;
+            padding: 3px 5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .title-bar-buttons {
+            display: flex;
+            gap: 2px;
+        }
+
+        .title-bar-button {
+            width: 18px;
+            height: 18px;
+            background: #c0c0c0;
+            border: 1px outset #ffffff;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .window-content {
+            padding: 20px;
+            background: #c0c0c0;
+        }
+
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1;
+        }
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .icon-image {
+            width: 48px;
+            height: 48px;
+            background: #c0c0c0;
+            border: 2px solid transparent;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .icon:active .icon-image {
+            border: 2px dotted #000;
+            background: rgba(0, 0, 128, 0.3);
+        }
+
+        .icon-label {
+            color: #ffffff;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px #000;
+            word-wrap: break-word;
+        }
+
+        .polaroid-container {
+            position: absolute;
+            top: 80px;
+            right: 40px;
+            transform: rotate(5deg);
+            z-index: 2;
+        }
+
+        .polaroid {
+            background: white;
+            padding: 15px;
+            padding-bottom: 50px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+            max-width: 200px;
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .polaroid-caption {
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .retro-arrow {
+            position: absolute;
+            top: 200px;
+            right: 280px;
+            font-size: 48px;
+            transform: rotate(-15deg);
+            z-index: 3;
+            animation: wobble 2s ease-in-out infinite;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(-5deg); }
+        }
+
+        .about-me-box {
+            position: absolute;
+            top: 300px;
+            right: 50px;
+            background: #ffffa0;
+            border: 2px solid #000;
+            padding: 15px;
+            max-width: 250px;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 14px;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        .clippy {
+            position: fixed;
+            bottom: 80px;
+            right: 30px;
+            cursor: pointer;
+            z-index: 999;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .clippy img {
+            width: 100px;
+            height: auto;
+            image-rendering: pixelated;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .speech-bubble {
+            position: fixed;
+            bottom: 200px;
+            right: 140px;
+            background: #ffffa0;
+            border: 2px solid #000;
+            padding: 15px;
+            max-width: 200px;
+            border-radius: 10px;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 998;
+            font-size: 12px;
+        }
+
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: -20px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-left-color: #000;
+            border-right: 0;
+        }
+
+        .speech-bubble:before {
+            content: '';
+            position: absolute;
+            bottom: 11px;
+            right: -16px;
+            width: 0;
+            height: 0;
+            border: 9px solid transparent;
+            border-left-color: #ffffa0;
+            border-right: 0;
+        }
+
+        h1 {
+            color: #000080;
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0px #ffffff;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background: #c0c0c0;
+            border: 2px outset #ffffff;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .button:active {
+            border-style: inset;
+        }
+
+        @media (max-width: 1440px) {
+            .polaroid-container {
+                right: 30px;
+                top: 60px;
+            }
+
+            .retro-arrow {
+                right: 240px;
+                top: 180px;
+                font-size: 42px;
+            }
+
+            .about-me-box {
+                right: 40px;
+                top: 280px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            #desktop {
+                padding: 15px;
+            }
+
+            .window {
+                max-width: 90%;
+                margin: 15px auto;
+            }
+
+            .polaroid-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px auto;
+                transform: rotate(3deg);
+            }
+
+            .polaroid {
+                max-width: 180px;
+            }
+
+            .retro-arrow {
+                display: none;
+            }
+
+            .about-me-box {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px auto;
+                max-width: 90%;
+            }
+
+            .desktop-icons {
+                position: relative;
+                flex-direction: row;
+                flex-wrap: wrap;
+                top: 0;
+                left: 0;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .clippy img {
+                width: 80px;
+            }
+
+            .speech-bubble {
+                right: 100px;
+                bottom: 160px;
+                max-width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #desktop {
+                padding: 10px;
+                padding-bottom: 50px;
+            }
+
+            .window {
+                max-width: 95%;
+                margin: 10px auto;
+            }
+
+            .window-content {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .polaroid {
+                max-width: 150px;
+                padding: 10px;
+                padding-bottom: 40px;
+            }
+
+            .polaroid-caption {
+                font-size: 12px;
+            }
+
+            .about-me-box {
+                padding: 12px;
+                font-size: 12px;
+            }
+
+            .icon {
+                width: 70px;
+            }
+
+            .icon-image {
+                width: 40px;
+                height: 40px;
+                font-size: 28px;
+            }
+
+            .icon-label {
+                font-size: 10px;
+            }
+
+            .start-button {
+                padding: 0 10px;
+                font-size: 12px;
+            }
+
+            .taskbar {
+                height: 35px;
+            }
+
+            .clippy {
+                bottom: 50px;
+                right: 15px;
+            }
+
+            .clippy img {
+                width: 70px;
+            }
+
+            .speech-bubble {
+                right: 85px;
+                bottom: 130px;
+                max-width: 150px;
+                padding: 10px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #desktop {
+                padding: 5px;
+                padding-bottom: 45px;
+            }
+
+            .window {
+                max-width: 100%;
+                margin: 5px auto;
+                border-width: 1px;
+            }
+
+            .window-content {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            p {
+                font-size: 13px;
+            }
+
+            .title-bar {
+                font-size: 12px;
+                padding: 2px 4px;
+            }
+
+            .polaroid-container {
+                margin: 15px auto;
+            }
+
+            .polaroid {
+                max-width: 130px;
+                padding: 8px;
+                padding-bottom: 35px;
+            }
+
+            .polaroid-caption {
+                font-size: 11px;
+            }
+
+            .about-me-box {
+                padding: 10px;
+                font-size: 11px;
+                max-width: 95%;
+            }
+
+            .desktop-icons {
+                gap: 10px;
+            }
+
+            .icon {
+                width: 60px;
+            }
+
+            .icon-image {
+                width: 36px;
+                height: 36px;
+                font-size: 24px;
+            }
+
+            .icon-label {
+                font-size: 9px;
+            }
+
+            .button {
+                padding: 6px 15px;
+                font-size: 12px;
+            }
+
+            .start-button {
+                padding: 0 8px;
+                font-size: 11px;
+                height: 28px;
+            }
+
+            .taskbar {
+                height: 32px;
+            }
+
+            .clippy {
+                bottom: 40px;
+                right: 10px;
+            }
+
+            .clippy img {
+                width: 60px;
+            }
+
+            .speech-bubble {
+                right: 70px;
+                bottom: 105px;
+                max-width: 130px;
+                padding: 8px;
+                font-size: 10px;
+            }
+
+            .speech-bubble:after {
+                border-width: 8px;
+            }
+
+            .speech-bubble:before {
+                border-width: 7px;
+                right: -13px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .window-content {
+                padding: 8px;
+            }
+
+            h1 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+
+            .polaroid {
+                max-width: 110px;
+            }
+
+            .clippy img {
+                width: 50px;
+            }
+
+            .speech-bubble {
+                right: 60px;
+                bottom: 95px;
+                max-width: 110px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            #desktop {
+                padding: 3px;
+                padding-bottom: 40px;
+            }
+
+            .window-content {
+                padding: 6px;
+            }
+
+            h1 {
+                font-size: 14px;
+            }
+
+            p {
+                font-size: 11px;
+            }
+
+            .icon {
+                width: 50px;
+            }
+
+            .icon-image {
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+            }
+
+            .polaroid {
+                max-width: 100px;
+            }
+
+            .clippy img {
+                width: 45px;
+            }
+
+            .speech-bubble {
+                right: 55px;
+                bottom: 85px;
+                max-width: 100px;
+                font-size: 9px;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .window {
+                max-width: 1000px;
+            }
+
+            .polaroid-container {
+                right: 60px;
+                top: 100px;
+            }
+
+            .polaroid {
+                max-width: 240px;
+            }
+
+            .retro-arrow {
+                right: 320px;
+                top: 220px;
+                font-size: 56px;
+            }
+
+            .about-me-box {
+                right: 80px;
+                top: 350px;
+                max-width: 280px;
+            }
+
+            .clippy img {
+                width: 120px;
+            }
+
+            .speech-bubble {
+                right: 160px;
+                bottom: 220px;
+                max-width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop">
+        <div class="desktop-icons">
+            <div class="icon">
+                <div class="icon-image">💻</div>
+                <div class="icon-label">Мой компьютер</div>
+            </div>
+            <div class="icon">
+                <div class="icon-image">🗂️</div>
+                <div class="icon-label">Документы</div>
+            </div>
+            <div class="icon">
+                <div class="icon-image">🌐</div>
+                <div class="icon-label">Internet Explorer</div>
+            </div>
+            <div class="icon">
+                <div class="icon-image">🗑️</div>
+                <div class="icon-label">Корзина</div>
+            </div>
+        </div>
+
+        <div class="polaroid-container">
+            <div class="polaroid">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='20'%3EФото%3C/text%3E%3C/svg%3E" alt="Фото">
+                <div class="polaroid-caption">Наша команда 🎉</div>
+            </div>
+        </div>
+
+        <div class="retro-arrow">→</div>
+
+        <div class="about-me-box">
+            <strong>Обо мне:</strong><br>
+            Разработчик с опытом создания современных веб-приложений. Люблю ретро-дизайн и Windows 95! 🖥️
+        </div>
+
+        <div class="window">
+            <div class="title-bar">
+                <span>наш.эдженси - Добро пожаловать!</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h1>👋 Привет! Добро пожаловать в наш.эдженси</h1>
+                <p>Мы создаем современные веб-приложения с винтажным шармом. Наша команда специализируется на разработке уникальных цифровых решений, которые объединяют ностальгию по 90-м с современными технологиями.</p>
+                
+                <h1>🚀 Наши услуги</h1>
+                <p>• Веб-разработка<br>
+                   • UI/UX дизайн<br>
+                   • Ретро-стилизация<br>
+                   • Консультации по технологиям</p>
+
+                <button class="button">Связаться с нами</button>
+            </div>
+        </div>
+
+        <div class="window">
+            <div class="title-bar">
+                <span>О проекте</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h1>💾 Почему Windows 95?</h1>
+                <p>Windows 95 был революционным продуктом, который изменил способ взаимодействия людей с компьютерами. Мы черпаем вдохновение из этой эпохи, создавая современные решения с ностальгическим дизайном.</p>
+                
+                <p>Наш подход сочетает лучшее из двух миров: надежность и простоту интерфейсов 90-х с мощью современных веб-технологий.</p>
+
+                <button class="button">Узнать больше</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="clippy">
+        <img src="https://m.gjcdn.net/fireside-post-image/900/36879939-yepxsbnw-v4.png" alt="Clippy">
+    </div>
+
+    <div class="speech-bubble" id="speechBubble">
+        Привет! Я Скрепыш! Нужна помощь? Кликни на меня! 📎
+    </div>
+
+    <div class="taskbar">
+        <button class="start-button">
+            <span style="font-size: 18px;">🪟</span> Пуск
+        </button>
+    </div>
+
+    <script>
+        const clippy = document.querySelector('.clippy');
+        const speechBubble = document.getElementById('speechBubble');
+        let bubbleVisible = false;
+
+        clippy.addEventListener('click', function() {
+            bubbleVisible = !bubbleVisible;
+            speechBubble.style.display = bubbleVisible ? 'block' : 'none';
+        });
+
+        clippy.addEventListener('mouseenter', function() {
+            if (!bubbleVisible) {
+                speechBubble.style.display = 'block';
+            }
+        });
+
+        clippy.addEventListener('mouseleave', function() {
+            if (!bubbleVisible) {
+                setTimeout(() => {
+                    if (!bubbleVisible) {
+                        speechBubble.style.display = 'none';
+                    }
+                }, 500);
+            }
+        });
+
+        const startButton = document.querySelector('.start-button');
+        startButton.addEventListener('click', function() {
+            alert('Меню "Пуск" пока в разработке! 🚀');
+        });
+
+        const buttons = document.querySelectorAll('.button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                alert('Спасибо за интерес! Свяжитесь с нами: contact@наш.эдженси 📧');
+            });
+        });
+
+        const icons = document.querySelectorAll('.icon');
+        icons.forEach(icon => {
+            icon.addEventListener('dblclick', function() {
+                const label = icon.querySelector('.icon-label').textContent;
+                alert(`Открываю: ${label}`);
+            });
+        });
+
+        const titleBarButtons = document.querySelectorAll('.title-bar-button');
+        titleBarButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const buttonText = button.textContent;
+                if (buttonText === '✕') {
+                    const window = button.closest('.window');
+                    window.style.display = 'none';
+                } else if (buttonText === '_') {
+                    alert('Окно свернуто! (понарошку 😄)');
+                } else if (buttonText === '□') {
+                    const window = button.closest('.window');
+                    if (window.style.maxWidth === '100%') {
+                        window.style.maxWidth = '';
+                    } else {
+                        window.style.maxWidth = '100%';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
