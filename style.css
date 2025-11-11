@@ -139,7 +139,6 @@ body {
     cursor: pointer;
     text-align: center;
     user-select: none;
-    transition: transform 0.1s;
 }
 
 .icon:active {
@@ -356,6 +355,87 @@ body {
     box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf;
 }
 
+/* Window Transitions */
+.window {
+    transition: opacity 0.2s ease, transform 0.2s ease, left 0.15s ease-out, top 0.15s ease-out, width 0.15s ease-out, height 0.15s ease-out;
+}
+
+.title-bar.focused {
+    background: linear-gradient(90deg, #000080, #1084d0);
+}
+
+/* Taskbar Window Buttons */
+.taskbar-window-button {
+    height: 32px;
+    padding: 0 12px;
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    flex-shrink: 0;
+    box-shadow: 1px 1px 0 #dfdfdf;
+}
+
+.taskbar-window-button:hover {
+    border-style: outset;
+    background: #dfdfdf;
+}
+
+.taskbar-window-button:active {
+    border-style: inset;
+    background: #c0c0c0;
+}
+
+/* Taskbar Clock */
+.taskbar-clock {
+    height: 32px;
+    padding: 0 12px;
+    background: #c0c0c0;
+    border: 1px inset #808080;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    color: #000;
+    margin-left: auto;
+    box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
+    user-select: none;
+}
+
+/* Icon Hover Effects */
+.icon {
+    transition: filter 0.1s ease, transform 0.1s ease;
+}
+
+.icon.selected .icon-label {
+    background: rgba(0, 0, 128, 0.8);
+    color: #ffffff;
+    text-shadow: none;
+    padding: 2px 4px;
+    margin-top: -2px;
+}
+
+/* Touch-specific adjustments */
+@media (hover: none) and (pointer: coarse) {
+    .icon:active {
+        transform: scale(0.95);
+    }
+    
+    .title-bar-button:active {
+        transform: scale(0.95);
+    }
+    
+    .button:active {
+        transform: scale(0.98);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 1440px) {
     #desktop {
@@ -406,6 +486,19 @@ body {
     .taskbar {
         height: 35px;
     }
+    
+    .taskbar-window-button {
+        height: 30px;
+        padding: 0 8px;
+        font-size: 10px;
+        max-width: 120px;
+    }
+    
+    .taskbar-clock {
+        height: 30px;
+        padding: 0 8px;
+        font-size: 10px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -450,6 +543,19 @@ body {
 
     .taskbar {
         height: 35px;
+    }
+    
+    .taskbar-window-button {
+        height: 28px;
+        padding: 0 6px;
+        font-size: 9px;
+        max-width: 100px;
+    }
+    
+    .taskbar-clock {
+        height: 28px;
+        padding: 0 6px;
+        font-size: 9px;
     }
 
     .minesweeper-grid {
@@ -512,6 +618,19 @@ body {
 
     .taskbar {
         height: 32px;
+    }
+    
+    .taskbar-window-button {
+        height: 26px;
+        padding: 0 5px;
+        font-size: 8px;
+        max-width: 80px;
+    }
+    
+    .taskbar-clock {
+        height: 26px;
+        padding: 0 5px;
+        font-size: 8px;
     }
 
     .button {
@@ -606,5 +725,18 @@ body {
         height: 24px;
         padding: 0 6px;
         font-size: 10px;
+    }
+    
+    .taskbar-window-button {
+        height: 24px;
+        padding: 0 4px;
+        font-size: 7px;
+        max-width: 60px;
+    }
+    
+    .taskbar-clock {
+        height: 24px;
+        padding: 0 4px;
+        font-size: 7px;
     }
 }
