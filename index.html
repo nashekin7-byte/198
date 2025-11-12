@@ -19,36 +19,36 @@
     <div id="desktop">
         <!-- Desktop Icons -->
         <div class="desktop-icons">
-            <div class="icon icon-about">
+            <div class="icon icon-about" data-window-id="about-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">About</div>
             </div>
-            <div class="icon icon-portfolio">
+            <div class="icon icon-portfolio" data-window-id="portfolio-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">Portfolio</div>
             </div>
-            <div class="icon icon-team">
+            <div class="icon icon-team" data-window-id="team-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">Team</div>
             </div>
-            <div class="icon icon-projects">
+            <div class="icon icon-projects" data-window-id="projects-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">Projects</div>
             </div>
-            <div class="icon icon-reviews">
+            <div class="icon icon-reviews" data-window-id="reviews-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">Reviews</div>
             </div>
-            <div class="icon icon-order">
+            <div class="icon icon-order" data-window-id="order-window">
                 <div class="icon-image"></div>
                 <div class="icon-label">Order</div>
             </div>
         </div>
 
-        <!-- Welcome Window -->
-        <div class="window">
+        <!-- Portfolio Window -->
+        <div class="window" id="portfolio-window">
             <div class="title-bar">
-                <span class="title-bar-text">Welcome.txt</span>
+                <span class="title-bar-text">Портфолио</span>
                 <div class="title-bar-buttons">
                     <div class="title-bar-button">_</div>
                     <div class="title-bar-button">□</div>
@@ -56,10 +56,12 @@
                 </div>
             </div>
             <div class="window-content">
-                <h2 style="color: #000080; margin-bottom: 10px;">Welcome to Windows 98 Desktop</h2>
-                <p>This is a functional recreation of the classic Windows 98 desktop environment.</p>
-                <p style="margin-top: 10px;">Double-click on icons to interact with them. Try dragging windows around!</p>
-                <button class="button">Get Started</button>
+                <h2>Мои проекты:</h2>
+                <p>🟦 Retro Portfolio — сайт в стиле Windows 98</p>
+                <p>🟧 CoffeeLab — лендинг кофейни</p>
+                <p>🟩 Architectura — корпоративный сайт архитектора</p>
+                <p>🟨 ArtPoster — онлайн-магазин постеров</p>
+                <p>🟪 MotionPage — мини-анимации и визуальные эффекты</p>
             </div>
         </div>
 
@@ -85,10 +87,10 @@
             </div>
         </div>
 
-        <!-- About Window -->
-        <div class="window">
+        <!-- About Me Window -->
+        <div class="window" id="about-window">
             <div class="title-bar">
-                <span class="title-bar-text">About.txt</span>
+                <span class="title-bar-text">Обо мне</span>
                 <div class="title-bar-buttons">
                     <div class="title-bar-button">_</div>
                     <div class="title-bar-button">□</div>
@@ -96,15 +98,97 @@
                 </div>
             </div>
             <div class="window-content">
-                <h2 style="color: #000080; margin-bottom: 10px;">About This Project</h2>
-                <p>This Windows 98 desktop shell is built with:</p>
-                <ul style="margin: 10px 0 10px 20px;">
-                    <li>HTML5 markup</li>
-                    <li>CSS3 styling</li>
-                    <li>Vanilla JavaScript</li>
-                </ul>
-                <p style="margin-top: 10px;">No build tools required - open index.html directly in your browser!</p>
-                <button class="button">OK</button>
+                <h2>Привет! 👋</h2>
+                <p>Меня зовут Артём, я веб-разработчик, создающий сайты с душой и вниманием к деталям.</p>
+                <p>Люблю минимализм, ретро-дизайн и понятный UX.</p>
+                <p>Работаю с HTML, CSS, JavaScript, React и WordPress.</p>
+                <p>Если ты читаешь это в окне Windows 98 — значит, всё работает как надо. 😎</p>
+                <div style="margin-top: 15px; text-align: center;">
+                    <img src="assets/avatar.png" alt="Avatar" style="width: 64px; height: 64px; image-rendering: pixelated;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Window -->
+        <div class="window" id="team-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Команда</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2>На самом деле я работаю один 😄</h2>
+                <p>Но иногда сотрудничаю с крутыми фрилансерами:</p>
+                <p>🎨 Дизайнер — Катя</p>
+                <p>💡 Маркетолог — Дима</p>
+                <p>✍️ Копирайтер — Анна</p>
+                <p>📸 Фотограф — Игорь</p>
+            </div>
+        </div>
+
+        <!-- Projects Window -->
+        <div class="window" id="projects-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Проекты</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2>Текущие проекты:</h2>
+                <p>🔹 Сайт для студии интерьеров</p>
+                <p>🔹 Образовательная платформа</p>
+                <p>🔹 Портал с мини-играми</p>
+                <p>🔹 Новая версия этого портфолио 😏</p>
+            </div>
+        </div>
+
+        <!-- Reviews Window -->
+        <div class="window" id="reviews-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Отзывы</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="testimonial">
+                    <p class="testimonial__text">🗨️ Алексей, владелец кофейни:</p>
+                    <p class="testimonial__author">«Сайт получился уютным и атмосферным, как наш кофе!»</p>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial__text">🗨️ Мария, дизайнер:</p>
+                    <p class="testimonial__author">«Редко вижу, чтобы фронтенд так точно передавал задумку дизайна!»</p>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial__text">🗨️ Дмитрий, предприниматель:</p>
+                    <p class="testimonial__author">«Работаем уже второй раз — всё чётко и в срок.»</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Website Window -->
+        <div class="window" id="order-window">
+            <div class="title-bar">
+                <span class="title-bar-text">🛠️ Как заказать сайт</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2>Хочешь сайт в стиле Windows 98 или что-то современное?</h2>
+                <p style="margin-top: 15px;">📧 Пиши: <strong>hello@retrodev.studio</strong></p>
+                <p>📱 Telegram: <strong>@retroartem</strong></p>
+                <p style="margin-top: 15px;">Я создам сайт, который будет работать быстро и вызывать ностальгию 😎</p>
             </div>
         </div>
     </div>
@@ -112,16 +196,16 @@
     <!-- Start Menu Container -->
     <div class="start-menu-container">
         <ul class="start-menu">
-            <li class="start-menu-item">📁 File</li>
-            <li class="start-menu-item">✏️ Edit</li>
-            <li class="start-menu-item">👁️ View</li>
+            <li class="start-menu-item" data-window-id="about-window">👤 Обо мне</li>
+            <li class="start-menu-item" data-window-id="portfolio-window">💼 Портфолио</li>
+            <li class="start-menu-item" data-window-id="team-window">👥 Команда</li>
+            <li class="start-menu-item" data-window-id="projects-window">📁 Проекты</li>
+            <li class="start-menu-item" data-window-id="reviews-window">⭐ Отзывы</li>
+            <li class="start-menu-item" data-window-id="order-window">🛠️ Заказать сайт</li>
             <li class="start-menu-separator"></li>
-            <li class="start-menu-item">⚙️ Settings</li>
+            <li class="start-menu-item" data-window-id="minesweeper-window">💣 Minesweeper</li>
             <li class="start-menu-separator"></li>
-            <li class="start-menu-item">🔍 Search</li>
-            <li class="start-menu-item">💬 Help</li>
-            <li class="start-menu-separator"></li>
-            <li class="start-menu-item">🚪 Shut Down</li>
+            <li class="start-menu-item" data-action="shutdown">🚪 Shut Down</li>
         </ul>
     </div>
 
