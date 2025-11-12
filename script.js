@@ -190,36 +190,28 @@ class StartMenu {
     }
 
     handleMenuItemClick(item) {
-        const text = item.textContent.trim();
-        console.log(`Menu item clicked: ${text}`);
+        const windowId = item.dataset.windowId;
+        if (!windowId) return;
         
-        // Map menu items to actions
-        const actionMap = {
-            '📁 File': () => this.openWindowByLabel('Portfolio'),
-            '✏️ Edit': () => console.log('Edit clicked'),
-            '👁️ View': () => console.log('View clicked'),
-            '⚙️ Settings': () => console.log('Settings clicked'),
-            '🔍 Search': () => console.log('Search clicked'),
-            '💬 Help': () => this.openWindowByLabel('About'),
-            '🚪 Shut Down': () => alert('Shutting down... (demo)')
-        };
-
-        const action = actionMap[text];
-        if (action) {
-            action();
-        }
+        console.log(`Menu item clicked: ${item.textContent.trim()}`);
         
+        this.openWindowById(windowId);
         this.close();
     }
 
-    openWindowByLabel(label) {
-        const icon = Array.from(document.querySelectorAll('.icon'))
-            .find(el => el.querySelector('.icon-label').textContent === label);
-        if (icon) {
-            const desktopIcon = icon._desktopIconInstance;
-            if (desktopIcon) {
-                desktopIcon.open();
-            }
+    openWindowById(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) {
+            console.warn(`Window with id "${windowId}" not found`);
+            return;
+        }
+        
+        if (windowRegistry.has(windowElement)) {
+            const windowInstance = windowRegistry.get(windowElement);
+            windowInstance.restore();
+            windowInstance.focus();
+        } else {
+            console.warn(`Window instance for "${windowId}" not found in registry`);
         }
     }
 }
@@ -311,28 +303,27 @@ class DesktopIcon {
 
     open() {
         const label = this.element.querySelector('.icon-label').textContent;
+        const windowId = this.element.dataset.windowId;
+        
         console.log(`Opening: ${label}`);
         
-        // Map icon labels to windows
-        const windowMap = {
-            'About': 'About.txt',
-            'Portfolio': 'Welcome.txt',
-            'Team': 'About.txt',
-            'Projects': 'Welcome.txt',
-            'Reviews': 'About.txt',
-            'Order': 'Welcome.txt'
-        };
-
-        const windowTitle = windowMap[label];
-        if (windowTitle) {
-            const windowElement = Array.from(document.querySelectorAll('.window'))
-                .find(win => win.querySelector('.title-bar-text').textContent === windowTitle);
-            
-            if (windowElement && windowRegistry.has(windowElement)) {
-                const windowInstance = windowRegistry.get(windowElement);
-                windowInstance.restore();
-                windowInstance.focus();
-            }
+        if (!windowId) {
+            console.warn(`No window ID found for icon: ${label}`);
+            return;
+        }
+        
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) {
+            console.warn(`Window with id "${windowId}" not found`);
+            return;
+        }
+        
+        if (windowRegistry.has(windowElement)) {
+            const windowInstance = windowRegistry.get(windowElement);
+            windowInstance.restore();
+            windowInstance.focus();
+        } else {
+            console.warn(`Window instance for "${windowId}" not found in registry`);
         }
     }
 
