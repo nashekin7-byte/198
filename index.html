@@ -19,36 +19,36 @@
     <div id="desktop">
         <!-- Desktop Icons -->
         <div class="desktop-icons">
-            <div class="icon">
+            <div class="icon" data-window-id="about-window">
                 <div class="icon-image">ℹ️</div>
-                <div class="icon-label">About</div>
+                <div class="icon-label">About Me</div>
             </div>
-            <div class="icon">
+            <div class="icon" data-window-id="portfolio-window">
                 <div class="icon-image">📁</div>
                 <div class="icon-label">Portfolio</div>
             </div>
-            <div class="icon">
+            <div class="icon" data-window-id="team-window">
                 <div class="icon-image">👥</div>
                 <div class="icon-label">Team</div>
             </div>
-            <div class="icon">
+            <div class="icon" data-window-id="projects-window">
                 <div class="icon-image">📋</div>
                 <div class="icon-label">Projects</div>
             </div>
-            <div class="icon">
+            <div class="icon" data-window-id="reviews-window">
                 <div class="icon-image">⭐</div>
                 <div class="icon-label">Reviews</div>
             </div>
-            <div class="icon">
+            <div class="icon" data-window-id="order-window">
                 <div class="icon-image">🛒</div>
-                <div class="icon-label">Order</div>
+                <div class="icon-label">Order Website</div>
             </div>
         </div>
 
-        <!-- Welcome Window -->
-        <div class="window">
+        <!-- About Me Window -->
+        <div class="window" id="about-window">
             <div class="title-bar">
-                <span class="title-bar-text">Welcome.txt</span>
+                <span class="title-bar-text">About Me - Artem</span>
                 <div class="title-bar-buttons">
                     <div class="title-bar-button">_</div>
                     <div class="title-bar-button">□</div>
@@ -56,15 +56,222 @@
                 </div>
             </div>
             <div class="window-content">
-                <h2 style="color: #000080; margin-bottom: 10px;">Welcome to Windows 98 Desktop</h2>
-                <p>This is a functional recreation of the classic Windows 98 desktop environment.</p>
-                <p style="margin-top: 10px;">Double-click on icons to interact with them. Try dragging windows around!</p>
-                <button class="button">Get Started</button>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <img src="assets/avatar.png" alt="Artem Avatar" style="width: 80px; height: 80px; border: 2px inset #808080; image-rendering: pixelated;" onerror="this.style.display='none'">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h2 style="color: #000080; margin-bottom: 8px;">Привет! / Hello!</h2>
+                        <p style="margin-bottom: 8px;"><strong>Artem</strong> - Web Developer & Designer</p>
+                    </div>
+                </div>
+                <p style="margin-bottom: 10px;">🇷🇺 Я создаю современные веб-сайты с ретро-стилем.</p>
+                <p style="margin-bottom: 10px;">🇬🇧 I create modern websites with a retro twist.</p>
+                <p style="margin-top: 15px; color: #000080;"><strong>Skills:</strong></p>
+                <ul style="margin: 8px 0 10px 20px; line-height: 1.6;">
+                    <li>HTML5, CSS3, JavaScript</li>
+                    <li>Responsive Design</li>
+                    <li>UI/UX Design</li>
+                    <li>Retro Aesthetics</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Portfolio Window -->
+        <div class="window" id="portfolio-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Portfolio.exe</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="color: #000080; margin-bottom: 10px;">My Work / Моя Работа</h2>
+                <p style="margin-bottom: 10px;">🇷🇺 Специализируюсь на создании уникальных веб-решений, которые сочетают функциональность с эстетикой.</p>
+                <p style="margin-bottom: 15px;">🇬🇧 I specialize in creating unique web solutions that combine functionality with aesthetics.</p>
+                
+                <div style="background: #ffffff; padding: 12px; border: 2px inset #808080; margin-bottom: 12px;">
+                    <h3 style="color: #000080; font-size: 13px; margin-bottom: 8px;">Services / Услуги:</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>💻 Website Development / Разработка сайтов</li>
+                        <li>🎨 UI/UX Design / Дизайн интерфейсов</li>
+                        <li>📱 Responsive Layouts / Адаптивная верстка</li>
+                        <li>⚡ Performance Optimization / Оптимизация</li>
+                    </ul>
+                </div>
+                
+                <p style="margin-top: 12px; font-style: italic;">Check out my Projects window for examples!</p>
+            </div>
+        </div>
+
+        <!-- Team Window -->
+        <div class="window" id="team-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Team.doc</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="color: #000080; margin-bottom: 10px;">Our Team / Наша Команда</h2>
+                <p style="margin-bottom: 15px;">🇷🇺 Команда талантливых специалистов.</p>
+                <p style="margin-bottom: 15px;">🇬🇧 A team of talented professionals.</p>
+                
+                <div style="background: #ffffff; padding: 10px; border: 2px inset #808080; margin-bottom: 10px;">
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: #000080;">👤 Artem</strong> - Lead Developer<br>
+                        <span style="font-size: 10px;">Frontend & Backend • 5+ years experience</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: #000080;">👤 Designer Alex</strong> - UI/UX Designer<br>
+                        <span style="font-size: 10px;">Visual Design • Retro Specialist</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: #000080;">👤 Maria</strong> - Project Manager<br>
+                        <span style="font-size: 10px;">Coordination • Client Relations</span>
+                    </div>
+                    <div>
+                        <strong style="color: #000080;">👤 Dev Ivan</strong> - Backend Developer<br>
+                        <span style="font-size: 10px;">Server Architecture • Database Design</span>
+                    </div>
+                </div>
+                
+                <button class="button">Contact Team</button>
+            </div>
+        </div>
+
+        <!-- Projects Window -->
+        <div class="window" id="projects-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Projects.txt</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="color: #000080; margin-bottom: 10px;">Recent Projects / Проекты</h2>
+                <p style="margin-bottom: 15px;">🇷🇺 Избранные работы и достижения.</p>
+                <p style="margin-bottom: 15px;">🇬🇧 Featured works and achievements.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟦</div>
+                        <strong style="font-size: 11px;">E-commerce Site</strong><br>
+                        <span style="font-size: 9px; color: #666;">2024</span>
+                    </div>
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟩</div>
+                        <strong style="font-size: 11px;">Portfolio Platform</strong><br>
+                        <span style="font-size: 9px; color: #666;">2024</span>
+                    </div>
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟨</div>
+                        <strong style="font-size: 11px;">Corporate Website</strong><br>
+                        <span style="font-size: 9px; color: #666;">2023</span>
+                    </div>
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟧</div>
+                        <strong style="font-size: 11px;">Landing Page</strong><br>
+                        <span style="font-size: 9px; color: #666;">2023</span>
+                    </div>
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟪</div>
+                        <strong style="font-size: 11px;">Web App</strong><br>
+                        <span style="font-size: 9px; color: #666;">2023</span>
+                    </div>
+                    <div style="background: #ffffff; padding: 10px; border: 2px outset #808080; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 5px;">🟥</div>
+                        <strong style="font-size: 11px;">Retro Dashboard</strong><br>
+                        <span style="font-size: 9px; color: #666;">2024</span>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 10px; font-size: 10px; color: #666;">
+                    ✅ HTML/CSS/JS • ✅ Responsive • ✅ Optimized
+                </p>
+            </div>
+        </div>
+
+        <!-- Reviews Window -->
+        <div class="window" id="reviews-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Reviews.doc</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="color: #000080; margin-bottom: 10px;">Client Reviews / Отзывы</h2>
+                <p style="margin-bottom: 15px;">🇷🇺 Что говорят наши клиенты.</p>
+                <p style="margin-bottom: 15px;">🇬🇧 What our clients say.</p>
+                
+                <div style="background: #ffffff; padding: 12px; border: 2px inset #808080; margin-bottom: 10px;">
+                    <p style="margin-bottom: 8px; font-style: italic;">"Excellent work! The website exceeded our expectations. Fast, responsive, and beautiful design."</p>
+                    <p style="font-size: 10px; color: #000080;"><strong>⭐⭐⭐⭐⭐</strong> - Anna K., Business Owner</p>
+                </div>
+                
+                <div style="background: #ffffff; padding: 12px; border: 2px inset #808080; margin-bottom: 10px;">
+                    <p style="margin-bottom: 8px; font-style: italic;">"Потрясающий профессионализм! Сайт работает безупречно."</p>
+                    <p style="font-size: 10px; color: #000080;"><strong>⭐⭐⭐⭐⭐</strong> - Dmitry S., Entrepreneur</p>
+                </div>
+                
+                <div style="background: #ffffff; padding: 12px; border: 2px inset #808080; margin-bottom: 10px;">
+                    <p style="margin-bottom: 8px; font-style: italic;">"Great communication and timely delivery. Highly recommended!"</p>
+                    <p style="font-size: 10px; color: #000080;"><strong>⭐⭐⭐⭐⭐</strong> - Sarah M., Startup Founder</p>
+                </div>
+                
+                <div style="background: #ffffff; padding: 12px; border: 2px inset #808080;">
+                    <p style="margin-bottom: 8px; font-style: italic;">"Уникальный дизайн и быстрая работа. Спасибо!"</p>
+                    <p style="font-size: 10px; color: #000080;"><strong>⭐⭐⭐⭐⭐</strong> - Olga P., Marketing Director</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Website Window -->
+        <div class="window" id="order-window">
+            <div class="title-bar">
+                <span class="title-bar-text">Order.exe</span>
+                <div class="title-bar-buttons">
+                    <div class="title-bar-button">_</div>
+                    <div class="title-bar-button">□</div>
+                    <div class="title-bar-button">✕</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="color: #000080; margin-bottom: 10px;">Order a Website / Заказать Сайт</h2>
+                <p style="margin-bottom: 15px;">🇷🇺 Готовы начать ваш проект? Свяжитесь со мной!</p>
+                <p style="margin-bottom: 15px;">🇬🇧 Ready to start your project? Get in touch!</p>
+                
+                <div style="background: #ffffff; padding: 15px; border: 2px inset #808080; margin-bottom: 15px;">
+                    <h3 style="color: #000080; font-size: 13px; margin-bottom: 10px;">📧 Contact Information:</h3>
+                    <p style="margin-bottom: 8px;"><strong>Email:</strong> artem@webdev.example</p>
+                    <p style="margin-bottom: 8px;"><strong>Telegram:</strong> @artemdev</p>
+                    <p style="margin-bottom: 8px;"><strong>WhatsApp:</strong> +1 (555) 123-4567</p>
+                    <p style="margin-bottom: 8px;"><strong>GitHub:</strong> github.com/artemdev</p>
+                </div>
+                
+                <div style="background: #ffffcc; padding: 12px; border: 2px outset #808080; margin-bottom: 15px;">
+                    <h3 style="color: #000080; font-size: 12px; margin-bottom: 8px;">💼 Pricing:</h3>
+                    <ul style="margin-left: 20px; line-height: 1.6; font-size: 11px;">
+                        <li>Landing Page: from $500</li>
+                        <li>Corporate Site: from $1,500</li>
+                        <li>E-commerce: from $3,000</li>
+                        <li>Web Application: from $5,000</li>
+                    </ul>
+                </div>
+                
+                <button class="button">Send Message</button>
             </div>
         </div>
 
         <!-- Minesweeper Window -->
-        <div class="window" id="minesweeper-window">
+        <div class="window" id="minesweeper-window" style="display: none;">
             <div class="title-bar">
                 <span class="title-bar-text">Minesweeper</span>
                 <div class="title-bar-buttons">
@@ -84,44 +291,19 @@
                 <div class="minesweeper-grid"></div>
             </div>
         </div>
-
-        <!-- About Window -->
-        <div class="window">
-            <div class="title-bar">
-                <span class="title-bar-text">About.txt</span>
-                <div class="title-bar-buttons">
-                    <div class="title-bar-button">_</div>
-                    <div class="title-bar-button">□</div>
-                    <div class="title-bar-button">✕</div>
-                </div>
-            </div>
-            <div class="window-content">
-                <h2 style="color: #000080; margin-bottom: 10px;">About This Project</h2>
-                <p>This Windows 98 desktop shell is built with:</p>
-                <ul style="margin: 10px 0 10px 20px;">
-                    <li>HTML5 markup</li>
-                    <li>CSS3 styling</li>
-                    <li>Vanilla JavaScript</li>
-                </ul>
-                <p style="margin-top: 10px;">No build tools required - open index.html directly in your browser!</p>
-                <button class="button">OK</button>
-            </div>
-        </div>
     </div>
 
     <!-- Start Menu Container -->
     <div class="start-menu-container">
         <ul class="start-menu">
-            <li class="start-menu-item">📁 File</li>
-            <li class="start-menu-item">✏️ Edit</li>
-            <li class="start-menu-item">👁️ View</li>
+            <li class="start-menu-item" data-window-id="about-window">ℹ️ About Me</li>
+            <li class="start-menu-item" data-window-id="portfolio-window">📁 Portfolio</li>
+            <li class="start-menu-item" data-window-id="team-window">👥 Team</li>
+            <li class="start-menu-item" data-window-id="projects-window">📋 Projects</li>
+            <li class="start-menu-item" data-window-id="reviews-window">⭐ Reviews</li>
+            <li class="start-menu-item" data-window-id="order-window">🛒 Order Website</li>
             <li class="start-menu-separator"></li>
-            <li class="start-menu-item">⚙️ Settings</li>
-            <li class="start-menu-separator"></li>
-            <li class="start-menu-item">🔍 Search</li>
-            <li class="start-menu-item">💬 Help</li>
-            <li class="start-menu-separator"></li>
-            <li class="start-menu-item">🚪 Shut Down</li>
+            <li class="start-menu-item" data-window-id="minesweeper-window">💣 Minesweeper</li>
         </ul>
     </div>
 
