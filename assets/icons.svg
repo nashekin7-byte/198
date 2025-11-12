@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 48">
+  <!-- About icon (red) -->
+  <svg x="0" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#ff0000"/>
+  </svg>
+  
+  <!-- Portfolio icon (green) -->
+  <svg x="48" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#00ff00"/>
+  </svg>
+  
+  <!-- Team icon (blue) -->
+  <svg x="96" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#0000ff"/>
+  </svg>
+  
+  <!-- Projects icon (yellow) -->
+  <svg x="144" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#ffff00"/>
+  </svg>
+  
+  <!-- Reviews icon (magenta) -->
+  <svg x="192" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#ff00ff"/>
+  </svg>
+  
+  <!-- Order icon (cyan) -->
+  <svg x="240" y="0" width="48" height="48" viewBox="0 0 48 48">
+    <rect width="48" height="48" fill="#c0c0c0"/>
+    <rect x="8" y="8" width="32" height="32" fill="#00ffff"/>
+  </svg>
+</svg>
