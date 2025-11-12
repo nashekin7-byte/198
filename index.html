@@ -43,6 +43,10 @@
                 <div class="icon-image"></div>
                 <div class="icon-label">Order</div>
             </div>
+            <div class="icon icon-minesweeper" data-window-id="minesweeper-window">
+                <div class="icon-image">💣</div>
+                <div class="icon-label">Minesweeper</div>
+            </div>
         </div>
 
         <!-- Portfolio Window -->
@@ -77,13 +81,20 @@
             </div>
             <div class="window-content">
                 <div class="minesweeper-header">
+                    <div class="minesweeper-controls">
+                        <select class="minesweeper-difficulty">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
                     <div class="minesweeper-display">
-                        <div class="minesweeper-counter">010</div>
-                        <div class="minesweeper-smiley">☺️</div>
-                        <div class="minesweeper-counter">000</div>
+                        <div class="minesweeper-counter" id="mine-counter">010</div>
+                        <div class="minesweeper-smiley" id="smiley-button">😊</div>
+                        <div class="minesweeper-counter" id="timer">000</div>
                     </div>
                 </div>
-                <div class="minesweeper-grid"></div>
+                <div class="minesweeper-grid" id="minesweeper-grid"></div>
             </div>
         </div>
 

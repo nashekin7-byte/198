@@ -692,44 +692,199 @@ class TaskbarClock {
 // Minesweeper Game
 class Minesweeper {
     constructor() {
-        this.gridElement = document.querySelector('.minesweeper-grid');
-        this.counterElement = document.querySelector('.minesweeper-counter');
-        this.smileyElement = document.querySelector('.minesweeper-smiley');
-        this.gridSize = 10;
+        this.gridElement = document.getElementById('minesweeper-grid');
+        this.mineCounterElement = document.getElementById('mine-counter');
+        this.timerElement = document.getElementById('timer');
+        this.smileyElement = document.getElementById('smiley-button');
+        this.difficultyElement = document.querySelector('.minesweeper-difficulty');
+        this.windowElement = document.getElementById('minesweeper-window');
+        
+        // Difficulty configurations
+        this.difficulties = {
+            beginner: { rows: 9, cols: 9, mines: 10 },
+            intermediate: { rows: 16, cols: 16, mines: 40 },
+            expert: { rows: 16, cols: 30, mines: 99 }
+        };
+        
+        // Game state
+        this.currentDifficulty = 'beginner';
+        this.rows = 9;
+        this.cols = 9;
         this.mineCount = 10;
         this.grid = [];
         this.revealed = [];
         this.flagged = [];
-        this.gameOver = false;
+        this.gameState = 'ready'; // ready, playing, won, lost
+        this.firstClick = true;
+        this.timer = 0;
+        this.timerInterval = null;
+        this.currentCell = null; // For keyboard navigation
+        
         this.init();
     }
 
     init() {
         if (!this.gridElement) return;
         
-        this.initializeGrid();
-        this.renderGrid();
-        this.updateCounter();
-        
+        this.setupEventListeners();
+        this.newGame();
+    }
+
+    setupEventListeners() {
+        // Smiley reset button
         if (this.smileyElement) {
             this.smileyElement.addEventListener('pointerdown', (e) => {
                 e.preventDefault();
-                this.reset();
+                this.setSmileyState('pressed');
             });
+            
+            this.smileyElement.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                this.setSmileyState('normal');
+                this.newGame();
+            });
+            
+            this.smileyElement.addEventListener('pointerleave', () => {
+                if (this.gameState !== 'won' && this.gameState !== 'lost') {
+                    this.setSmileyState('normal');
+                }
+            });
+        }
+
+        // Difficulty selector
+        if (this.difficultyElement) {
+            this.difficultyElement.addEventListener('change', (e) => {
+                this.currentDifficulty = e.target.value;
+                this.newGame();
+                this.updateWindowStyling();
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement === this.difficultyElement) return;
+            
+            // Only handle keys when minesweeper window is focused
+            const windowInstance = windowRegistry.get(this.windowElement);
+            if (!windowInstance || this.windowElement.style.zIndex !== highestZIndex.toString()) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'ArrowDown':
+                case 'ArrowLeft':
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.handleArrowKey(e.key);
+                    break;
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    if (this.currentCell !== null) {
+                        this.revealCell(this.currentCell);
+                    }
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    if (this.currentCell !== null) {
+                        this.toggleFlag(this.currentCell);
+                    }
+                    break;
+                case 'r':
+                case 'R':
+                    e.preventDefault();
+                    this.newGame();
+                    break;
+            }
+        });
+    }
+
+    handleArrowKey(key) {
+        if (this.currentCell === null) {
+            this.currentCell = 0;
+        } else {
+            const row = Math.floor(this.currentCell / this.cols);
+            const col = this.currentCell % this.cols;
+            let newRow = row, newCol = col;
+
+            switch(key) {
+                case 'ArrowUp': newRow = Math.max(0, row - 1); break;
+                case 'ArrowDown': newRow = Math.min(this.rows - 1, row + 1); break;
+                case 'ArrowLeft': newCol = Math.max(0, col - 1); break;
+                case 'ArrowRight': newCol = Math.min(this.cols - 1, col + 1); break;
+            }
+
+            this.currentCell = newRow * this.cols + newCol;
+        }
+        this.highlightCurrentCell();
+    }
+
+    highlightCurrentCell() {
+        // Remove previous highlights
+        document.querySelectorAll('.mine-cell.keyboard-focus').forEach(cell => {
+            cell.classList.remove('keyboard-focus');
+        });
+
+        // Add highlight to current cell
+        if (this.currentCell !== null) {
+            const cell = this.gridElement.children[this.currentCell];
+            if (cell) {
+                cell.classList.add('keyboard-focus');
+                cell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            }
         }
     }
 
-    initializeGrid() {
-        // Initialize empty grid
-        this.grid = Array(this.gridSize * this.gridSize).fill(0);
-        this.revealed = Array(this.gridSize * this.gridSize).fill(false);
-        this.flagged = Array(this.gridSize * this.gridSize).fill(false);
+    newGame() {
+        // Stop timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
 
-        // Place mines randomly
+        // Set difficulty
+        const config = this.difficulties[this.currentDifficulty];
+        this.rows = config.rows;
+        this.cols = config.cols;
+        this.mineCount = config.mines;
+
+        // Reset game state
+        this.grid = Array(this.rows * this.cols).fill(0);
+        this.revealed = Array(this.rows * this.cols).fill(false);
+        this.flagged = Array(this.rows * this.cols).fill(false);
+        this.gameState = 'ready';
+        this.firstClick = true;
+        this.timer = 0;
+        this.currentCell = null;
+
+        // Update UI
+        this.updateMineCounter();
+        this.updateTimer();
+        this.setSmileyState('normal');
+        this.renderGrid();
+    }
+
+    initializeMines(excludeIdx) {
+        // Place mines randomly, excluding the first clicked cell and its neighbors
+        const excludeSet = new Set([excludeIdx]);
+        const row = Math.floor(excludeIdx / this.cols);
+        const col = excludeIdx % this.cols;
+
+        // Add neighbors to exclude set
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                    excludeSet.add(nr * this.cols + nc);
+                }
+            }
+        }
+
         let minesPlaced = 0;
         while (minesPlaced < this.mineCount) {
             const idx = Math.floor(Math.random() * this.grid.length);
-            if (this.grid[idx] !== 'M') {
+            if (!excludeSet.has(idx) && this.grid[idx] !== 'M') {
                 this.grid[idx] = 'M';
                 minesPlaced++;
             }
@@ -740,15 +895,16 @@ class Minesweeper {
             if (this.grid[i] === 'M') continue;
             
             let count = 0;
-            const row = Math.floor(i / this.gridSize);
-            const col = i % this.gridSize;
+            const row = Math.floor(i / this.cols);
+            const col = i % this.cols;
 
             for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
                     const nr = row + dr;
                     const nc = col + dc;
-                    if (nr >= 0 && nr < this.gridSize && nc >= 0 && nc < this.gridSize) {
-                        const idx = nr * this.gridSize + nc;
+                    if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                        const idx = nr * this.cols + nc;
                         if (this.grid[idx] === 'M') count++;
                     }
                 }
@@ -756,12 +912,11 @@ class Minesweeper {
             
             if (count > 0) this.grid[i] = count;
         }
-
-        this.gameOver = false;
     }
 
     renderGrid() {
         this.gridElement.innerHTML = '';
+        this.gridElement.className = `minesweeper-grid ${this.currentDifficulty}`;
         
         for (let i = 0; i < this.grid.length; i++) {
             const cell = document.createElement('div');
@@ -773,36 +928,33 @@ class Minesweeper {
                     cell.textContent = '💣';
                 } else if (this.grid[i] > 0) {
                     cell.textContent = this.grid[i];
+                    cell.setAttribute('data-number', this.grid[i]);
                 }
             } else if (this.flagged[i]) {
                 cell.textContent = '🚩';
             }
 
+            // Mouse/touch events
             cell.addEventListener('pointerdown', (e) => {
                 e.preventDefault();
-                this.revealCell(i);
+                this.handleCellPointerDown(i, e);
             });
             
+            cell.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                this.handleCellPointerUp(i, e);
+            });
+
             cell.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 this.toggleFlag(i);
             });
-            
-            // Long-press to flag on touch devices
-            let longPressTimer = null;
-            cell.addEventListener('pointerdown', (e) => {
-                if (e.pointerType === 'touch') {
-                    longPressTimer = setTimeout(() => {
-                        this.toggleFlag(i);
-                        longPressTimer = null;
-                    }, 500);
-                }
-            });
-            
-            cell.addEventListener('pointerup', () => {
-                if (longPressTimer) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
+
+            // Hover effect for keyboard focus
+            cell.addEventListener('pointerenter', () => {
+                if (e.pointerType === 'mouse') {
+                    this.currentCell = i;
+                    this.highlightCurrentCell();
                 }
             });
 
@@ -810,67 +962,205 @@ class Minesweeper {
         }
     }
 
+    handleCellPointerDown(idx, e) {
+        if (this.gameState === 'won' || this.gameState === 'lost') return;
+        if (this.revealed[idx] || this.flagged[idx]) return;
+
+        this.currentCell = idx;
+        this.highlightCurrentCell();
+
+        if (e.pointerType === 'touch') {
+            // Long-press to flag on touch devices
+            this.longPressTimer = setTimeout(() => {
+                this.toggleFlag(idx);
+                this.longPressTimer = null;
+            }, 500);
+        }
+
+        // Show pressed smiley
+        if (this.gameState === 'playing') {
+            this.setSmileyState('surprised');
+        }
+    }
+
+    handleCellPointerUp(idx, e) {
+        if (this.longPressTimer) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+            
+            // This was a click, not a long press
+            if (e.pointerType === 'touch' || e.button === 0) {
+                this.revealCell(idx);
+            }
+        }
+
+        // Restore normal smiley
+        if (this.gameState === 'playing') {
+            this.setSmileyState('normal');
+        }
+    }
+
     revealCell(idx) {
-        if (this.gameOver || this.revealed[idx] || this.flagged[idx]) return;
+        if (this.gameState === 'won' || this.gameState === 'lost') return;
+        if (this.revealed[idx] || this.flagged[idx]) return;
+
+        // First click - place mines
+        if (this.firstClick) {
+            this.firstClick = false;
+            this.initializeMines(idx);
+            this.gameState = 'playing';
+            this.startTimer();
+        }
 
         this.revealed[idx] = true;
 
         if (this.grid[idx] === 'M') {
-            this.gameOver = true;
-            this.revealAll();
-            setTimeout(() => alert('Game Over! You hit a mine! 💣'), 100);
+            this.gameOver(false);
             return;
         }
 
+        // Flood fill for empty cells
         if (this.grid[idx] === 0) {
-            // Flood fill
-            const row = Math.floor(idx / this.gridSize);
-            const col = idx % this.gridSize;
+            this.floodFill(idx);
+        }
+
+        this.checkWinCondition();
+        this.renderGrid();
+        this.updateMineCounter();
+    }
+
+    floodFill(startIdx) {
+        const queue = [startIdx];
+        const visited = new Set();
+
+        while (queue.length > 0) {
+            const idx = queue.shift();
+            if (visited.has(idx)) continue;
+            visited.add(idx);
+
+            const row = Math.floor(idx / this.cols);
+            const col = idx % this.cols;
 
             for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
                     const nr = row + dr;
                     const nc = col + dc;
-                    if (nr >= 0 && nr < this.gridSize && nc >= 0 && nc < this.gridSize) {
-                        const nidx = nr * this.gridSize + nc;
-                        if (!this.revealed[nidx]) {
-                            this.revealCell(nidx);
+                    if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                        const nidx = nr * this.cols + nc;
+                        if (!this.revealed[nidx] && !this.flagged[nidx]) {
+                            this.revealed[nidx] = true;
+                            if (this.grid[nidx] === 0) {
+                                queue.push(nidx);
+                            }
                         }
                     }
                 }
             }
         }
-
-        this.updateCounter();
-        this.renderGrid();
     }
 
     toggleFlag(idx) {
-        if (!this.revealed[idx]) {
-            this.flagged[idx] = !this.flagged[idx];
-            this.updateCounter();
-            this.renderGrid();
-        }
+        if (this.gameState === 'won' || this.gameState === 'lost') return;
+        if (this.revealed[idx]) return;
+
+        this.flagged[idx] = !this.flagged[idx];
+        this.updateMineCounter();
+        this.renderGrid();
+        this.checkWinCondition();
     }
 
-    revealAll() {
+    checkWinCondition() {
+        let cellsToReveal = 0;
+        let correctFlags = 0;
+
         for (let i = 0; i < this.grid.length; i++) {
-            this.revealed[i] = true;
+            if (this.grid[i] !== 'M' && !this.revealed[i]) {
+                cellsToReveal++;
+            }
+            if (this.grid[i] === 'M' && this.flagged[i]) {
+                correctFlags++;
+            }
         }
-        this.renderGrid();
+
+        if (cellsToReveal === 0 || correctFlags === this.mineCount) {
+            this.gameOver(true);
+        }
     }
 
-    updateCounter() {
+    gameOver(won) {
+        this.gameState = won ? 'won' : 'lost';
+        this.stopTimer();
+
+        // Reveal all mines
+        for (let i = 0; i < this.grid.length; i++) {
+            if (this.grid[i] === 'M') {
+                this.revealed[i] = true;
+            }
+        }
+
+        this.setSmileyState(won ? 'cool' : 'dead');
+        this.renderGrid();
+
+        // Show game over message
+        setTimeout(() => {
+            const message = won ? 
+                `Congratulations! You won in ${this.timer} seconds! 😎` : 
+                'Game Over! You hit a mine! 💣';
+            alert(message);
+        }, 100);
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            this.timer++;
+            this.updateTimer();
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    updateMineCounter() {
         const remaining = this.mineCount - this.flagged.filter(f => f).length;
-        if (this.counterElement) {
-            this.counterElement.textContent = Math.max(0, remaining).toString().padStart(3, '0');
+        if (this.mineCounterElement) {
+            this.mineCounterElement.textContent = Math.max(0, remaining).toString().padStart(3, '0');
         }
     }
 
-    reset() {
-        this.initializeGrid();
-        this.updateCounter();
-        this.renderGrid();
+    updateTimer() {
+        if (this.timerElement) {
+            this.timerElement.textContent = Math.min(999, this.timer).toString().padStart(3, '0');
+        }
+    }
+
+    setSmileyState(state) {
+        if (!this.smileyElement) return;
+        
+        const smileys = {
+            normal: '😊',
+            pressed: '😮',
+            surprised: '😲',
+            cool: '😎',
+            dead: '😵'
+        };
+        
+        this.smileyElement.textContent = smileys[state] || smileys.normal;
+    }
+
+    updateWindowStyling() {
+        if (!this.windowElement) return;
+        
+        // Remove all difficulty classes
+        this.windowElement.classList.remove('intermediate', 'expert');
+        
+        // Add current difficulty class
+        if (this.currentDifficulty !== 'beginner') {
+            this.windowElement.classList.add(this.currentDifficulty);
+        }
     }
 }
 
