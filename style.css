@@ -13,12 +13,14 @@
 }
 
 body {
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
-    background: #008080 url('assets/desktop.svg') repeat;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
+    background: #000080 url('assets/desktop.jpg') center/cover no-repeat;
+    background-attachment: fixed;
     overflow-x: hidden;
     min-height: 100vh;
     user-select: none;
     -webkit-user-select: none;
+    color: #000;
 }
 
 /* Loading Overlay */
@@ -140,21 +142,23 @@ body.loading-active .start-menu-container {
     background: #c0c0c0;
     border: 2px outset #ffffff;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 11px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 5px;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
 }
 
 .start-button:hover {
     border-style: outset;
+    background: #dfdfdf;
 }
 
 .start-button:active {
     border-style: inset;
-    background: #dfdfdf;
+    background: #c0c0c0;
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
 }
 
 /* Start Menu */
@@ -191,7 +195,7 @@ body.loading-active .start-menu-container {
     border: none;
     width: 100%;
     text-align: left;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
     font-size: 11px;
 }
 
@@ -243,19 +247,47 @@ body.loading-active .start-menu-container {
     justify-content: center;
     font-size: 32px;
     image-rendering: pixelated;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-about .icon-image {
+    background-image: url('assets/icon-about.png');
+}
+
+.icon-portfolio .icon-image {
+    background-image: url('assets/icon-portfolio.png');
+}
+
+.icon-team .icon-image {
+    background-image: url('assets/icon-team.png');
+}
+
+.icon-projects .icon-image {
+    background-image: url('assets/icon-projects.png');
+}
+
+.icon-reviews .icon-image {
+    background-image: url('assets/icon-reviews.png');
+}
+
+.icon-order .icon-image {
+    background-image: url('assets/icon-order.png');
 }
 
 .icon.selected .icon-image {
     border: 2px dashed #ffffff;
-    background: rgba(0, 0, 128, 0.3);
+    background-color: rgba(0, 0, 128, 0.3);
 }
 
 .icon-label {
     color: #ffffff;
-    font-size: 11px;
+    font-size: 9px;
     text-shadow: 1px 1px 2px #000;
     word-wrap: break-word;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-press-start, 'Press Start 2P', 'Courier New', monospace);
+    line-height: 1.2;
 }
 
 /* Window Styling */
@@ -279,8 +311,8 @@ body.loading-active .start-menu-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-size: 11px;
+    font-family: var(--font-press-start, 'Press Start 2P', 'Courier New', monospace);
     cursor: move;
     user-select: none;
     gap: 4px;
@@ -324,6 +356,35 @@ body.loading-active .start-menu-container {
     flex: 1;
     overflow: auto;
     max-height: 400px;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
+}
+
+.window-content h2,
+.window-content h3,
+.window-content h4 {
+    font-family: var(--font-press-start, 'Press Start 2P', 'Courier New', monospace);
+    font-size: 12px;
+    color: #000080;
+    margin-bottom: 10px;
+}
+
+.window-content p {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.window-content ul,
+.window-content ol {
+    margin-left: 20px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.window-content li {
+    margin-bottom: 5px;
+    color: #000;
 }
 
 /* Minesweeper Window */
@@ -415,8 +476,8 @@ body.loading-active .start-menu-container {
     border: 2px outset #ffffff;
     padding: 8px 20px;
     cursor: pointer;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
-    font-size: 14px;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
+    font-size: 11px;
     margin-top: 10px;
     display: inline-block;
     box-shadow: 1px 1px 0 #dfdfdf, 1px 1px 0 #ffffff;
@@ -424,12 +485,72 @@ body.loading-active .start-menu-container {
 
 .button:hover {
     border-style: outset;
+    background: #dfdfdf;
 }
 
 .button:active {
     border-style: inset;
-    background: #dfdfdf;
+    background: #c0c0c0;
     box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+
+/* Retro Badge Styles */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 2px 4px;
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+    box-shadow: 1px 1px 0 #dfdfdf, 1px 1px 0 #ffffff;
+    font-size: 9px;
+    font-family: var(--font-press-start, 'Press Start 2P', 'Courier New', monospace);
+    color: #000080;
+    white-space: nowrap;
+}
+
+.badge--primary {
+    background: #000080;
+    color: #ffffff;
+    border-style: inset;
+}
+
+.badge--success {
+    background: #00aa00;
+    color: #ffffff;
+}
+
+.badge--warning {
+    background: #ffff00;
+    color: #000;
+}
+
+.badge--danger {
+    background: #ff0000;
+    color: #ffffff;
+}
+
+/* Testimonial Block Styles */
+.testimonial {
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+    padding: 12px;
+    margin: 10px 0;
+    box-shadow: 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+}
+
+.testimonial__text {
+    font-size: 11px;
+    color: #000;
+    font-style: italic;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.testimonial__author {
+    font-size: 9px;
+    color: #000080;
+    font-family: var(--font-press-start, 'Press Start 2P', 'Courier New', monospace);
+    text-align: right;
 }
 
 /* Text Input */
@@ -437,7 +558,7 @@ body.loading-active .start-menu-container {
     background: #ffffff;
     border: 2px inset #ffffff;
     padding: 4px 8px;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
     font-size: 11px;
     box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf;
 }
@@ -459,7 +580,7 @@ body.loading-active .start-menu-container {
     border: 2px outset #ffffff;
     font-size: 11px;
     cursor: pointer;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
     color: #000;
     white-space: nowrap;
     overflow: hidden;
@@ -477,6 +598,7 @@ body.loading-active .start-menu-container {
 .taskbar-window-button:active {
     border-style: inset;
     background: #c0c0c0;
+    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
 }
 
 /* Taskbar Clock */
@@ -488,7 +610,7 @@ body.loading-active .start-menu-container {
     font-size: 11px;
     display: flex;
     align-items: center;
-    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-family: var(--font-system, 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif);
     color: #000;
     margin-left: auto;
     box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
