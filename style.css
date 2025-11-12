@@ -21,6 +21,93 @@ body {
     -webkit-user-select: none;
 }
 
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: #0000AA;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 10000;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-overlay__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+}
+
+.loading-video {
+    width: min(80vw, 480px);
+    max-height: 50vh;
+    height: auto;
+    display: block;
+    border: 2px solid #ffffff;
+    box-shadow: 3px 3px 0 #000040, -3px -3px 0 #5c7cff;
+    background: #000000;
+}
+
+.loading-progress {
+    width: min(70vw, 440px);
+    background: #c0c0c0;
+    border: 2px inset #ffffff;
+    box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff;
+    padding: 4px;
+}
+
+.loading-progress__bar {
+    height: 18px;
+    width: 0%;
+    background: repeating-linear-gradient(135deg, #000080 0, #000080 12px, #1084d0 12px, #1084d0 24px);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.4), inset -1px -1px 0 rgba(0, 0, 0, 0.4);
+    transition: width 0.4s ease-out;
+    animation: loading-stripes 1.2s linear infinite;
+}
+
+body.loading-active {
+    cursor: wait;
+}
+
+body.loading-active #desktop,
+body.loading-active .taskbar,
+body.loading-active .start-menu-container {
+    pointer-events: none;
+}
+
+@keyframes loading-stripes {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 48px 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loading-overlay {
+        transition: none;
+    }
+
+    .loading-progress__bar {
+        transition: none;
+        animation: none;
+    }
+}
+
 #desktop {
     min-height: 100vh;
     background: transparent;
@@ -738,5 +825,19 @@ body {
         height: 24px;
         padding: 0 4px;
         font-size: 7px;
+    }
+
+    .loading-video {
+        width: 90vw;
+        max-height: 40vh;
+        border-width: 1px;
+    }
+
+    .loading-progress {
+        width: 90vw;
+    }
+
+    .loading-progress__bar {
+        height: 14px;
     }
 }

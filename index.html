@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="false">
+        <div class="loading-overlay__content">
+            <video id="loading-video" class="loading-video" src="assets/loading.mp4" autoplay muted playsinline webkit-playsinline preload="auto"></video>
+            <div class="loading-progress">
+                <div class="loading-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading desktop"></div>
+            </div>
+        </div>
+    </div>
     <div id="desktop">
         <!-- Desktop Icons -->
         <div class="desktop-icons">

@@ -7,6 +7,129 @@ const windowRegistry = new Map();
 // Utility function to detect if device supports touch
 const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+class LoadingOverlay {
+    constructor() {
+        this.overlay = document.getElementById('loading-overlay');
+        if (!this.overlay) return;
+
+        this.video = document.getElementById('loading-video');
+        this.progressBar = this.overlay.querySelector('.loading-progress__bar');
+        this.progressValue = 0;
+        this.progressInterval = null;
+        this.failSafeTimeout = null;
+        this.failSafeDelay = null;
+        this.isComplete = false;
+
+        this.init();
+    }
+
+    init() {
+        this.overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('loading-active');
+        this.startProgress();
+
+        if (this.video) {
+            this.video.muted = true;
+            this.video.setAttribute('muted', '');
+            this.video.setAttribute('playsinline', '');
+            this.video.setAttribute('autoplay', '');
+            this.video.addEventListener('loadeddata', () => this.handleLoadedData());
+            this.video.addEventListener('ended', () => this.complete());
+            this.video.addEventListener('error', () => this.handleError());
+
+            const playPromise = this.video.play();
+            if (playPromise && typeof playPromise.then === 'function') {
+                playPromise.catch(() => {
+                    this.scheduleFallback(3500);
+                });
+            }
+        } else {
+            this.scheduleFallback(1200);
+        }
+
+        window.addEventListener('load', () => this.complete());
+        this.scheduleFallback(6000);
+    }
+
+    startProgress() {
+        this.setProgress(4);
+
+        this.progressInterval = setInterval(() => {
+            if (this.isComplete) return;
+            const increment = 5 + Math.random() * 6;
+            const nextValue = Math.min(95, this.progressValue + increment);
+            this.setProgress(nextValue);
+        }, 260);
+    }
+
+    handleLoadedData() {
+        this.setProgress(Math.max(this.progressValue, 45));
+        this.scheduleFallback(1800);
+    }
+
+    handleError() {
+        this.scheduleFallback(800);
+    }
+
+    scheduleFallback(delay) {
+        if (this.isComplete) return;
+
+        if (!this.failSafeTimeout || delay < this.failSafeDelay) {
+            if (this.failSafeTimeout) {
+                clearTimeout(this.failSafeTimeout);
+            }
+
+            this.failSafeDelay = delay;
+            this.failSafeTimeout = setTimeout(() => this.complete(), delay);
+        }
+    }
+
+    setProgress(value) {
+        this.progressValue = Math.max(0, Math.min(100, value));
+
+        if (this.progressBar) {
+            this.progressBar.style.width = `${this.progressValue}%`;
+            this.progressBar.setAttribute('aria-valuenow', Math.round(this.progressValue).toString());
+        }
+    }
+
+    complete() {
+        if (this.isComplete) return;
+        this.isComplete = true;
+
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
+
+        if (this.failSafeTimeout) {
+            clearTimeout(this.failSafeTimeout);
+            this.failSafeTimeout = null;
+        }
+
+        this.setProgress(100);
+        document.body.classList.remove('loading-active');
+
+        if (!this.overlay) return;
+
+        this.overlay.setAttribute('aria-hidden', 'true');
+
+        const handleTransitionEnd = () => {
+            this.overlay.removeEventListener('transitionend', handleTransitionEnd);
+            this.overlay.style.display = 'none';
+        };
+
+        this.overlay.addEventListener('transitionend', handleTransitionEnd);
+        requestAnimationFrame(() => {
+            this.overlay.classList.add('hidden');
+        });
+
+        setTimeout(() => {
+            this.overlay.style.display = 'none';
+        }, 500);
+    }
+}
+
 // Start Menu
 class StartMenu {
     constructor() {
@@ -764,6 +887,9 @@ class Minesweeper {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Loading Overlay
+    new LoadingOverlay();
+
     // Start Menu
     new StartMenu();
 
