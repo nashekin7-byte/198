@@ -199,7 +199,7 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         welcome_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -226,7 +226,7 @@ async def show_services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         services_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -263,7 +263,7 @@ async def show_prices(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         prices_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -302,7 +302,7 @@ async def send_guide(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         guide_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -356,7 +356,7 @@ async def show_about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         about_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -388,7 +388,7 @@ async def show_appointment(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         appointment_text,
         parse_mode="HTML",
         reply_markup=reply_markup
@@ -412,7 +412,7 @@ async def show_faq(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.edit_text(
+    await query.message.reply_text(
         faq_text,
         parse_mode="HTML",
         reply_markup=reply_markup
