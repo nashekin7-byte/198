@@ -515,25 +515,35 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     data = query.data
     
-    if data == MAIN_MENU:
-        await main_menu(update, context)
-    elif data == SHOW_SERVICES:
-        await show_services(update, context)
-    elif data == SHOW_PRICES:
-        await show_prices(update, context)
-    elif data == SEND_GUIDE:
-        await send_guide(update, context)
-    elif data == SHOW_ABOUT:
-        await show_about(update, context)
-    elif data == SHOW_APPOINTMENT:
-        await show_appointment(update, context)
-    elif data == SHOW_FAQ:
-        await show_faq(update, context)
+    try:
+        if data == MAIN_MENU:
+            await main_menu(update, context)
+        elif data == SHOW_SERVICES:
+            await show_services(update, context)
+        elif data == SHOW_PRICES:
+            await show_prices(update, context)
+        elif data == SEND_GUIDE:
+            await send_guide(update, context)
+        elif data == SHOW_ABOUT:
+            await show_about(update, context)
+        elif data == SHOW_APPOINTMENT:
+            await show_appointment(update, context)
+        elif data == SHOW_FAQ:
+            await show_faq(update, context)
+    except Exception as e:
+        logger.error(f"Error in button_handler: {e}", exc_info=True)
+        raise  # Re-raise to be caught by error_handler
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log errors and send user-friendly message"""
-    logger.error("Exception while handling an update:", exc_info=context.error)
+    logger.error(f"Exception while handling an update: {context.error}", exc_info=context.error)
+    
+    # Log additional context
+    if update and hasattr(update, 'effective_user'):
+        logger.error(f"User: {update.effective_user.id} - @{update.effective_user.username}")
+    if update and hasattr(update, 'effective_message'):
+        logger.error(f"Message: {update.effective_message.text}")
     
     try:
         if isinstance(update, Update) and update.effective_message:
@@ -548,28 +558,54 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 def main():
     """Start the bot"""
+    logger.info("=== Starting White Clinic Telegram Bot ===")
+    logger.info("Checking environment variables...")
+    
     token = os.getenv("BOT_TOKEN")
     
     if not token:
-        logger.error("No BOT_TOKEN found. Please set it in .env file")
+        logger.error("❌ No BOT_TOKEN found. Please set it in .env file")
+        logger.error("Steps to fix:")
+        logger.error("1. cp .env.example .env")
+        logger.error("2. Edit .env and add your bot token from @BotFather")
+        logger.error("3. Run: python bot.py")
         return
     
-    # Create Application
-    application = Application.builder().token(token).build()
+    logger.info("✓ BOT_TOKEN found")
     
-    # Add handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("privacy", privacy_command))
-    application.add_handler(CallbackQueryHandler(button_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-    
-    # Add error handler
-    application.add_error_handler(error_handler)
-    
-    # Start the bot
-    logger.info("Starting White Clinic Telegram Bot...")
-    application.run_polling()
+    try:
+        # Test imports
+        logger.info("Testing imports...")
+        from telegram import __version__ as telegram_version
+        logger.info(f"✓ python-telegram-bot version: {telegram_version}")
+        
+        # Create Application
+        logger.info("Creating Application...")
+        application = Application.builder().token(token).build()
+        logger.info("✓ Application created successfully")
+        
+        # Add handlers
+        logger.info("Setting up handlers...")
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("privacy", privacy_command))
+        application.add_handler(CallbackQueryHandler(button_handler))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+        logger.info("✓ Handlers configured")
+        
+        # Add error handler
+        application.add_error_handler(error_handler)
+        logger.info("✓ Error handler added")
+        
+        # Start the bot
+        logger.info("Starting polling...")
+        application.run_polling()
+        
+    except ImportError as e:
+        logger.error(f"❌ Import error: {e}")
+        logger.error("Please install dependencies: pip install -r requirements.txt")
+    except Exception as e:
+        logger.error(f"❌ Unexpected error: {e}", exc_info=True)
 
 
 if __name__ == "__main__":
