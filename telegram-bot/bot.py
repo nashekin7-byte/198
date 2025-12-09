@@ -214,7 +214,7 @@ async def show_services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     services_text = "🦷 *НАШИ УСЛУГИ* \n\n"
     
     for category, items in SERVICES.items():
-        services_text += f"*\{category\}*\n"
+        services_text += f"*{category}*\n"
         for item in items:
             services_text += f"• {item}\n"
         services_text += "\n"
