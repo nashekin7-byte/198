@@ -154,10 +154,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     
     welcome_text = (
-        f"👋 Здравствуйте\\, {user.first_name}!\n\n"
-        f"Меня зовут *{CLINIC_INFO['head_doctor']}*\\. Как руководитель *{CLINIC_INFO['name']}* я рад приветствовать вас в нашем боте!\n\n"
-        f"*{CLINIC_INFO['name']}* — современная стоматологическая клиника в Череповце\\."
-        f"Мы предлагаем полный спектр стоматологических услуг с использованием передовых технологий и качественных материалов\\."
+        f"👋 Здравствуйте, {user.first_name}!\n\n"
+        f"Меня зовут <b>{CLINIC_INFO['head_doctor']}</b>. Как руководитель <b>{CLINIC_INFO['name']}</b> я рад приветствовать вас в нашем боте!\n\n"
+        f"<b>{CLINIC_INFO['name']}</b> — современная стоматологическая клиника в Череповце. "
+        f"Мы предлагаем полный спектр стоматологических услуг с использованием передовых технологий и качественных материалов."
     )
     
     keyboard = [
@@ -172,7 +172,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     await update.message.reply_text(
         welcome_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -184,9 +184,9 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     user = query.from_user
     welcome_text = (
-        f"👋 Здравствуйте\\, {user.first_name}!\n\n"
-        f"Меня зовут *{CLINIC_INFO['head_doctor']}*\\. Как руководитель *{CLINIC_INFO['name']}* я рад приветствовать вас!\n\n"
-        f"*{CLINIC_INFO['name']}* — современная стоматологическая клиника в Череповце\\."
+        f"👋 Здравствуйте, {user.first_name}!\n\n"
+        f"Меня зовут <b>{CLINIC_INFO['head_doctor']}</b>. Как руководитель <b>{CLINIC_INFO['name']}</b> я рад приветствовать вас!\n\n"
+        f"<b>{CLINIC_INFO['name']}</b> — современная стоматологическая клиника в Череповце."
     )
     
     keyboard = [
@@ -201,7 +201,7 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     await query.message.edit_text(
         welcome_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -211,10 +211,10 @@ async def show_services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     query = update.callback_query
     await query.answer()
     
-    services_text = "🦷 *НАШИ УСЛУГИ* \n\n"
+    services_text = "🦷 <b>НАШИ УСЛУГИ</b>\n\n"
     
     for category, items in SERVICES.items():
-        services_text += f"*{category}*\n"
+        services_text += f"<b>{category}</b>\n"
         for item in items:
             services_text += f"• {item}\n"
         services_text += "\n"
@@ -228,7 +228,7 @@ async def show_services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     
     await query.message.edit_text(
         services_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -251,11 +251,11 @@ async def show_prices(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             logger.error(f"Error sending price list PDF: {e}")
     
     # Fallback to text prices if PDF doesn't exist or failed
-    prices_text = "💰 *ПРАЙС-ЛИСТ*\n\n"
+    prices_text = "💰 <b>ПРАЙС-ЛИСТ</b>\n\n"
     for service, price in PRICES.items():
-        prices_text += f"*{service}*: {price}\n"
+        prices_text += f"<b>{service}</b>: {price}\n"
     
-    prices_text += f"\nℹ️ *Примечание*: Окончательная стоимость определяется после осмотра и составления плана лечения\\."
+    prices_text += f"\nℹ️ <b>Примечание</b>: Окончательная стоимость определяется после осмотра и составления плана лечения."
     
     keyboard = [
         [InlineKeyboardButton("📞 Записаться на приём", callback_data=SHOW_APPOINTMENT)],
@@ -265,7 +265,7 @@ async def show_prices(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     
     await query.message.edit_text(
         prices_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -288,12 +288,12 @@ async def send_guide(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             logger.error(f"Error sending guide PDF: {e}")
     
     # Fallback to text guide if PDF doesn't exist or failed
-    guide_text = "📚 *ПОЛЕЗНЫЙ ГАЙД*\n\nРекомендации по уходу за зубами:\n\n"
-    guide_text += "💠 *Чистите зубы 2 раза в день* по 2\\-3 минуты\n\n"
-    guide_text += "💠 *Используйте зубную нить* ежедневно\n\n"
-    guide_text += "💠 *Избегайте перекусов* между приёмами пищи\n\n"
-    guide_text += "💠 *Пейте больше воды*\n\n"
-    guide_text += "💠 *Посещайте стоматолога раз в полгода* для профилактики"
+    guide_text = "📚 <b>ПОЛЕЗНЫЙ ГАЙД</b>\n\nРекомендации по уходу за зубами:\n\n"
+    guide_text += "💠 <b>Чистите зубы 2 раза в день</b> по 2-3 минуты\n\n"
+    guide_text += "💠 <b>Используйте зубную нить</b> ежедневно\n\n"
+    guide_text += "💠 <b>Избегайте перекусов</b> между приёмами пищи\n\n"
+    guide_text += "💠 <b>Пейте больше воды</b>\n\n"
+    guide_text += "💠 <b>Посещайте стоматолога раз в полгода</b> для профилактики"
     
     keyboard = [
         [InlineKeyboardButton("📅 Записаться на осмотр", callback_data=SHOW_APPOINTMENT)],
@@ -304,7 +304,7 @@ async def send_guide(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     
     await query.message.edit_text(
         guide_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -314,36 +314,36 @@ async def show_about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     query = update.callback_query
     await query.answer()
     
-    about_text = "👨‍⚕️ *О НАС*\n\n"
+    about_text = "👨‍⚕️ <b>О НАС</b>\n\n"
     
     # Head doctor info
     head_doctor = DOCTORS[0]
-    about_text += f"*👨‍⚕️ СУНГУРОВ АРТЕМ ВАЛЕРЬЕВИЧ*\n"
-    about_text += f"*{head_doctor['name']}*\n"
-    about_text += f"_{head_doctor['specialty']}_\n"
+    about_text += "<b>👨‍⚕️ СУНГУРОВ АРТЕМ ВАЛЕРЬЕВИЧ</b>\n"
+    about_text += f"<b>{head_doctor['name']}</b>\n"
+    about_text += f"<i>{head_doctor['specialty']}</i>\n"
     about_text += f"Опыт работы: {head_doctor['experience']}\n\n"
     about_text += f"{head_doctor['description']}\n\n\n"
     
     # Clinic info
-    about_text += f"*🏥 О БЕЛОЙ КЛИНИКЕ:*\n\n"
-    about_text += f"• Современное оборудование\n"
-    about_text += f"• Опытная команда специалистов\n"
-    about_text += f"• Индивидуальный подход к каждому пациенту\n"
-    about_text += f"• Доступные цены\n"
-    about_text += f"• Гарантия на все виды работ\n\n"
-    about_text += f"*Наша команда врачей:*\n"
+    about_text += "<b>🏥 О БЕЛОЙ КЛИНИКЕ:</b>\n\n"
+    about_text += "• Современное оборудование\n"
+    about_text += "• Опытная команда специалистов\n"
+    about_text += "• Индивидуальный подход к каждому пациенту\n"
+    about_text += "• Доступные цены\n"
+    about_text += "• Гарантия на все виды работ\n\n"
+    about_text += "<b>Наша команда врачей:</b>\n"
     for i, doctor in enumerate(DOCTORS, 1):
-        about_text += f"{i}\\. {doctor['name']}\n   _{doctor['specialty']}_\n"
+        about_text += f"{i}. {doctor['name']}\n   <i>{doctor['specialty']}</i>\n"
     about_text += "\n\n"
     
-    about_text += f"*🏆 НАШИ ПРЕИМУЩЕСТВА:*\n\n"
+    about_text += "<b>🏆 НАШИ ПРЕИМУЩЕСТВА:</b>\n\n"
     about_text += "• Безболезненное лечение\n"
     about_text += "• Современные методики\n"
     about_text += "• Качественные материалы\n"
     about_text += "• Прозрачное ценообразование\n"
     about_text += f"• Гибкий график работы ({CLINIC_INFO['working_hours_short']})\n\n"
     
-    about_text += f"*📞 Контакты:*\n"
+    about_text += "<b>📞 Контакты:</b>\n"
     about_text += f"Телефон: {CLINIC_INFO['phone']}\n"
     about_text += f"Telegram: {CLINIC_INFO['telegram_channel']}\n"
     about_text += f"Адрес: {CLINIC_INFO['address']}\n"
@@ -358,7 +358,7 @@ async def show_about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     
     await query.message.edit_text(
         about_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -368,17 +368,17 @@ async def show_appointment(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     query = update.callback_query
     await query.answer()
     
-    appointment_text = "📞 *ЗАПИСАТЬСЯ НА ПРИЁМ*\n"
-    appointment_text += "📱 *Контакты:*\n\n"
-    appointment_text += "Телефон: 8 \\(820\\) 274\\-01\\-74\n"
+    appointment_text = "📞 <b>ЗАПИСАТЬСЯ НА ПРИЁМ</b>\n"
+    appointment_text += "📱 <b>Контакты:</b>\n\n"
+    appointment_text += "Телефон: 8 (820) 274-01-74\n"
     appointment_text += "Telegram: @white_clinic_che\n"
-    appointment_text += "Сайт: whiteclinic\\.ru\n\n"
-    appointment_text += "⏰ *Режим работы:*\n"
-    appointment_text += "09:00–21:00 \\(ежедневно, без выходных\\)\n\n"
-    appointment_text += "📍 *Адрес:*\n"
-    appointment_text += "Череповец, ул\\. Коммунистов, 16\n"
-    appointment_text += "\\(Индустриальный район, ост\\. «Площадь Милютина»\\)\n\n"
-    appointment_text += "💬 *Напишите нам в Telegram или позвоните, чтобы выбрать удобное время визита\\!"
+    appointment_text += "Сайт: whiteclinic.ru\n\n"
+    appointment_text += "⏰ <b>Режим работы:</b>\n"
+    appointment_text += "09:00–21:00 (ежедневно, без выходных)\n\n"
+    appointment_text += "📍 <b>Адрес:</b>\n"
+    appointment_text += "Череповец, ул. Коммунистов, 16\n"
+    appointment_text += "(Индустриальный район, ост. «Площадь Милютина»)\n\n"
+    appointment_text += "💬 Напишите нам в Telegram или позвоните, чтобы выбрать удобное время визита!"
     
     keyboard = [
         [InlineKeyboardButton("Написать в Telegram", url="https://t.me/white_clinic_che")],
@@ -390,7 +390,7 @@ async def show_appointment(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     
     await query.message.edit_text(
         appointment_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -400,11 +400,11 @@ async def show_faq(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
     
-    faq_text = "❓ *ЧАСТЫЕ ВОПРОСЫ*\n\n"
+    faq_text = "❓ <b>ЧАСТЫЕ ВОПРОСЫ</b>\n\n"
     
     for item in FAQ:
-        faq_text += f"*❔ {item['question']}*\n"
-        faq_text += f"✅ *{item['answer']}*\n\n"
+        faq_text += f"<b>❔ {item['question']}</b>\n"
+        faq_text += f"✅ {item['answer']}\n\n"
     
     keyboard = [
         [InlineKeyboardButton("💬 Задать свой вопрос", url=f"https://t.me/{CLINIC_INFO['telegram_channel'][1:]}")],
@@ -414,7 +414,7 @@ async def show_faq(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     await query.message.edit_text(
         faq_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -422,18 +422,18 @@ async def show_faq(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /help command"""
     help_text = (
-        "*🤖 СПРАВКА ПО БОТУ*\n\n"
+        "<b>🤖 СПРАВКА ПО БОТУ</b>\n\n"
         "Этот бот поможет вам:\n"
         "• Узнать о наших услугах\n"
         "• Просмотреть актуальные цены\n"
         "• Получить полезные рекомендации по уходу\n"
         "• Записаться на приём\n"
         "• Задать интересующие вопросы\n\n"
-        "*Команды бота:*\n"
+        "<b>Команды бота:</b>\n"
         "/start — главное меню\n"
         "/help — эта справка\n"
         "/privacy — политика конфиденциальности\n\n"
-        f"*Контакты {CLINIC_INFO['name']}:*\n"
+        f"<b>Контакты {CLINIC_INFO['name']}:</b>\n"
         f"📞 {CLINIC_INFO['phone']}\n"
         f"📱 {CLINIC_INFO['telegram_channel']}\n"
         f"📍 {CLINIC_INFO['address']}\n"
@@ -447,7 +447,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
     await update.message.reply_text(
         help_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -455,7 +455,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def privacy_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /privacy command"""
     privacy_text = (
-        "*🔒 ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ*\n\n"
+        "<b>🔒 ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ</b>\n\n"
         "Мы обеспечиваем полную конфиденциальность ваших данных:\n\n"
         "• Мы не передаём ваши данные третьим лицам\n"
         "• Вся информация используется только для связи с вами\n"
@@ -472,7 +472,7 @@ async def privacy_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     await update.message.reply_text(
         privacy_text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
@@ -482,7 +482,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     user = update.effective_user
     
     text = (
-        f"{user.first_name}, используйте кнопки в меню для навигации\\!\n\n"
+        f"{user.first_name}, используйте кнопки в меню для навигации!\n\n"
         f"Если у вас есть вопросы, свяжитесь с нами удобным для вас способом:\n\n"
         f"📱 Telegram: {CLINIC_INFO['telegram_channel']}\n"
         f"📞 Телефон: {CLINIC_INFO['phone']}\n"
@@ -497,7 +497,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     
     await update.message.reply_text(
         text,
-        parse_mode="MarkdownV2",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 
