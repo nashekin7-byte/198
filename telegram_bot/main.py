@@ -18,6 +18,8 @@ from database import (
     get_user_info,
     mark_materials_sent,
     get_all_users,
+    get_paid_users,
+    get_paid_users_count,
 )
 
 # Определение путей относительно расположения файла
@@ -42,8 +44,8 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = "YOUR_BOT_TOKEN"  # Получить от @BotFather в Telegram
 ADMIN_ID = 123456789  # Получить через @userinfobot
 
-# Состояния для отправки материалов конкретному клиенту
-WAITING_USER_ID, WAITING_MATERIAL = range(2)
+# Состояния для ConversationHandler
+(WAITING_USER_ID, WAITING_MATERIAL, WAITING_BROADCAST) = range(3)
 
 # Клавиатуры
 def get_main_keyboard():
@@ -331,13 +333,10 @@ async def handle_admin_message(update: Update, context: ContextTypes.DEFAULT_TYP
 
     if text == "👥 Список клиентов":
         await show_clients_list(update, context)
-    elif text == "📢 Рассылка всем":
-        # Будет реализовано в Задаче 6
-        pass
     elif text == "💰 Отметить оплату":
         # Будет реализовано в Задаче 7
         pass
-    # "📤 Отправить материал" обрабатывается через ConversationHandler
+    # "📤 Отправить материал" и "📢 Рассылка всем" обрабатываются через ConversationHandler
 
 # ConversationHandler functions for sending materials
 async def send_material_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -591,6 +590,229 @@ async def cancel_send_material(update: Update, context: ContextTypes.DEFAULT_TYP
 
     return ConversationHandler.END
 
+async def broadcast_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Начало процесса рассылки материалов всем оплатившим клиентам"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+    
+    if not is_admin(user_id):
+        return ConversationHandler.END
+    
+    try:
+        # Получить количество оплативших
+        paid_count = get_paid_users_count()
+        
+        if paid_count == 0:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text="❌ Нет оплативших клиентов для рассылки"
+            )
+            return ConversationHandler.END
+        
+        broadcast_text = (
+            "📢 РАССЫЛКА МАТЕРИАЛА ВСЕМ ОПЛАТИВШИМ КЛИЕНТАМ\n\n"
+            f"Получат: {paid_count} человек(а)\n\n"
+            "Отправьте материал для рассылки (фото, видео, документ или текст):\n\n"
+            "Используйте команду /cancel для отмены"
+        )
+        
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=broadcast_text
+        )
+        
+        logger.info(f"Admin {user_id} started broadcast to {paid_count} users")
+        return WAITING_BROADCAST
+        
+    except Exception as e:
+        logger.error(f"Error in broadcast_start: {e}")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ Произошла ошибка при инициализации рассылки"
+        )
+        return ConversationHandler.END
+
+async def broadcast_send_material(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Получить материал и отправить всем оплатившим клиентам"""
+    admin_id = update.effective_user.id
+    admin_chat_id = update.effective_chat.id
+    
+    try:
+        # Определить тип материала
+        material_type = None
+        material_file_id = None
+        caption_emoji = "📦"
+        
+        if update.message.photo:
+            material_type = "фото"
+            material_file_id = update.message.photo[-1].file_id
+            caption_emoji = "📸"
+        elif update.message.video:
+            material_type = "видео"
+            material_file_id = update.message.video.file_id
+            caption_emoji = "🎥"
+        elif update.message.document:
+            material_type = "документ"
+            material_file_id = update.message.document.file_id
+            caption_emoji = "📄"
+        elif update.message.text:
+            material_type = "текст"
+            caption_emoji = "📝"
+        else:
+            await context.bot.send_message(
+                chat_id=admin_chat_id,
+                text=(
+                    "❌ Неподдерживаемый тип файла. "
+                    "Отправьте фото, видео, документ или текст."
+                )
+            )
+            return WAITING_BROADCAST
+        
+        # Показать сообщение "Отправляю материалы..."
+        progress_message = await context.bot.send_message(
+            chat_id=admin_chat_id,
+            text="⏳ Отправляю материалы..."
+        )
+        
+        # Получить всех оплативших
+        paid_users = get_paid_users()
+        
+        if not paid_users:
+            await context.bot.edit_message_text(
+                chat_id=admin_chat_id,
+                message_id=progress_message.message_id,
+                text="❌ Нет оплативших клиентов для рассылки"
+            )
+            return ConversationHandler.END
+        
+        # Отправить материал каждому
+        successful_count = 0
+        error_count = 0
+        blocked_users = []
+        
+        caption = f"{caption_emoji} Новые материалы для вас:"
+        
+        for idx, target_user_id in enumerate(paid_users):
+            try:
+                # Отправить материал в зависимости от типа
+                if material_type == "фото":
+                    await context.bot.send_photo(
+                        chat_id=target_user_id,
+                        photo=material_file_id,
+                        caption=caption,
+                        parse_mode='HTML'
+                    )
+                elif material_type == "видео":
+                    await context.bot.send_video(
+                        chat_id=target_user_id,
+                        video=material_file_id,
+                        caption=caption,
+                        parse_mode='HTML'
+                    )
+                elif material_type == "документ":
+                    await context.bot.send_document(
+                        chat_id=target_user_id,
+                        document=material_file_id,
+                        caption=caption,
+                        parse_mode='HTML'
+                    )
+                elif material_type == "текст":
+                    await context.bot.send_message(
+                        chat_id=target_user_id,
+                        text=f"{caption}\n\n{update.message.text}"
+                    )
+                
+                successful_count += 1
+                
+                # Обновить прогресс (каждый 5-й пользователь)
+                if (idx + 1) % 5 == 0:
+                    await context.bot.edit_message_text(
+                        chat_id=admin_chat_id,
+                        message_id=progress_message.message_id,
+                        text=f"⏳ Отправляю материалы... ({idx + 1}/{len(paid_users)})"
+                    )
+                
+            except Exception as send_error:
+                error_count += 1
+                error_msg = str(send_error).lower()
+                
+                # Проверить тип ошибки
+                if "blocked" in error_msg or "user is deactivated" in error_msg:
+                    blocked_users.append(target_user_id)
+                    logger.warning(f"User {target_user_id} blocked the bot")
+                else:
+                    logger.error(f"Error sending to user {target_user_id}: {send_error}")
+            
+            # Добавить задержку (0.05 сек) чтобы не упереться в лимиты Telegram
+            import asyncio
+            await asyncio.sleep(0.05)
+        
+        # Удалить сообщение "Отправляю материалы..."
+        try:
+            await context.bot.delete_message(
+                chat_id=admin_chat_id,
+                message_id=progress_message.message_id
+            )
+        except:
+            pass
+        
+        # Показать статистику
+        stats_text = (
+            f"✅ Рассылка завершена!\n\n"
+            f"📊 Статистика:\n"
+            f"✅ Успешно: {successful_count}\n"
+            f"❌ Ошибок: {error_count}"
+        )
+        
+        if blocked_users:
+            stats_text += f"\n🚫 Заблокировали: {len(blocked_users)}"
+        
+        stats_text += (
+            f"\n\nИтого получили: {successful_count}/{len(paid_users)}\n\n"
+            "Используйте /admin для возврата в админ-панель"
+        )
+        
+        await context.bot.send_message(
+            chat_id=admin_chat_id,
+            text=stats_text
+        )
+        
+        logger.info(
+            f"Admin {admin_id} completed broadcast: "
+            f"sent to {successful_count}, errors: {error_count}, blocked: {len(blocked_users)}"
+        )
+        
+        return ConversationHandler.END
+        
+    except Exception as e:
+        logger.error(f"Error in broadcast_send_material: {e}")
+        await context.bot.send_message(
+            chat_id=admin_chat_id,
+            text="❌ Произошла ошибка при отправке материалов"
+        )
+        return ConversationHandler.END
+
+async def cancel_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Отмена рассылки"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+    
+    try:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=(
+                "❌ Рассылка отменена.\n\n"
+                "Используйте /admin для возврата в админ-панель"
+            )
+        )
+        
+        logger.info(f"Admin {user_id} cancelled broadcast operation")
+        
+    except Exception as e:
+        logger.error(f"Error in cancel_broadcast: {e}")
+    
+    return ConversationHandler.END
+
 def main():
     """Запуск бота"""
     # Инициализировать БД
@@ -631,6 +853,22 @@ def main():
     )
 
     app.add_handler(send_material_handler)
+
+    # ConversationHandler для рассылки материалов
+    broadcast_handler = ConversationHandler(
+        entry_points=[MessageHandler(filters.TEXT & filters.Regex("^📢 Рассылка всем$"), broadcast_start)],
+        states={
+            WAITING_BROADCAST: [
+                MessageHandler(
+                    filters.PHOTO | filters.VIDEO | filters.Document.PDF | filters.TEXT,
+                    broadcast_send_material
+                )
+            ],
+        },
+        fallbacks=[CommandHandler("cancel", cancel_broadcast)],
+    )
+
+    app.add_handler(broadcast_handler)
 
     # Запустить бота
     logger.info("Bot started polling")
