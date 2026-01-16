@@ -13,6 +13,7 @@ from database import (
     add_user,
     check_user_paid,
     check_materials_sent,
+    get_all_users,
 )
 
 # Определение путей относительно расположения файла
@@ -171,13 +172,166 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Универсальный обработчик сообщений для кнопок"""
     text = update.message.text
-    
+
     if text == "💳 Оплатить":
         await payment_button(update, context)
     elif text == "📊 Мой статус":
         await status_command(update, context)
     else:
         # На неизвестные сообщения не реагировать
+        pass
+
+# Admin functions
+def is_admin(user_id):
+    """Проверка прав администратора"""
+    return user_id == ADMIN_ID
+
+async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Обработчик команды /admin"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    if not is_admin(user_id):
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="⛔ У вас нет доступа к админ-панели"
+        )
+        logger.warning(f"Unauthorized admin access attempt from user {user_id}")
+        return
+
+    try:
+        admin_text = "⚙️ АДМИН-ПАНЕЛЬ\n\nУправление клиентами и материалами"
+
+        admin_keyboard = [
+            ["👥 Список клиентов"],
+            ["📤 Отправить материал", "📢 Рассылка всем"],
+            ["💰 Отметить оплату"],
+        ]
+
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=admin_text,
+            reply_markup=ReplyKeyboardMarkup(admin_keyboard, resize_keyboard=True)
+        )
+
+        logger.info(f"Admin {user_id} opened admin panel")
+
+    except Exception as e:
+        logger.error(f"Error in admin_command: {e}")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ Произошла ошибка при открытии админ-панели."
+        )
+
+async def show_clients_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Показать список всех клиентов"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    if not is_admin(user_id):
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="⛔ У вас нет доступа к админ-панели"
+        )
+        return
+
+    try:
+        all_users = get_all_users()
+
+        if not all_users:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text="❌ Клиентов не найдено"
+            )
+            return
+
+        # Разделить на оплатившие и неоплатившие
+        paid_users = [u for u in all_users if u['paid']]
+        unpaid_users = [u for u in all_users if not u['paid']]
+
+        total = len(all_users)
+
+        # Формировать сообщение с разбиением на страницы
+        messages = []
+        current_message = f"👥 СПИСОК КЛИЕНТОВ (всего: {total})\n\n"
+
+        # Оплатившие клиенты
+        if paid_users:
+            current_message += f"📍 ОПЛАТИВШИЕ КЛИЕНТЫ ({len(paid_users)}):\n\n"
+            for user in paid_users:
+                user_info = (
+                    f"✅ 📦 ID: `{user['user_id']}`\n"
+                    f"   @{user['username']} - {user['first_name']}\n"
+                    f"   Оплата: ✅ Да"
+                )
+                if user['paid_date']:
+                    user_info += f" (дата: {user['paid_date'].split()[0]})"
+                user_info += "\n"
+                user_info += f"   Материалы: {'✅ Отправлены' if user['materials_sent'] else '⏳ Не отправлены'}\n\n"
+
+                if len(current_message) + len(user_info) > 4000:  # Лимит Telegram
+                    messages.append(current_message)
+                    current_message = f"👥 СПИСОК КЛИЕНТОВ (продолжение)\n\n" + user_info
+                else:
+                    current_message += user_info
+
+        # Неоплатившие клиенты
+        if unpaid_users:
+            current_message += f"\n📍 НЕ ОПЛАТИВШИЕ КЛИЕНТЫ ({len(unpaid_users)}):\n\n"
+            for user in unpaid_users:
+                user_info = (
+                    f"❌ ⏳ ID: `{user['user_id']}`\n"
+                    f"   @{user['username']} - {user['first_name']}\n"
+                    f"   Оплата: ❌ Нет\n"
+                    f"   Материалы: ❌ Не отправлены\n\n"
+                )
+
+                if len(current_message) + len(user_info) > 4000:
+                    messages.append(current_message)
+                    current_message = f"👥 СПИСОК КЛИЕНТОВ (продолжение)\n\n" + user_info
+                else:
+                    current_message += user_info
+
+        messages.append(current_message)
+
+        # Отправить все сообщения
+        for i, msg in enumerate(messages):
+            if len(messages) > 1:
+                msg += f"\n\n(Страница {i+1} из {len(messages)})"
+
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=msg,
+                parse_mode='Markdown'
+            )
+
+        logger.info(f"Admin {user_id} viewed clients list. Total: {total}, Paid: {len(paid_users)}, Unpaid: {len(unpaid_users)}")
+
+    except Exception as e:
+        logger.error(f"Error in show_clients_list: {e}")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ Произошла ошибка при загрузке списка клиентов."
+        )
+
+async def handle_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Обработчик сообщений от администратора"""
+    user_id = update.effective_user.id
+    text = update.message.text
+
+    if not is_admin(user_id):
+        return
+
+    if text == "👥 Список клиентов":
+        await show_clients_list(update, context)
+    elif text == "📤 Отправить материал":
+        # Будет реализовано в Задаче 5
+        pass
+    elif text == "📢 Рассылка всем":
+        # Будет реализовано в Задаче 6
+        pass
+    elif text == "💰 Отметить оплату":
+        # Будет реализовано в Задаче 7
         pass
 
 def main():
@@ -191,9 +345,16 @@ def main():
     
     # Добавить обработчики в правильном порядке
     # Сначала команды, потом остальное
+    # Обработчики для клиентов
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("status", status_command))
+
+    # Обработчики для администратора
+    app.add_handler(CommandHandler("admin", admin_command))
+
+    # Универсальный обработчик сообщений для кнопок
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_admin_message))
     
     # Запустить бота
     logger.info("Bot started polling")
