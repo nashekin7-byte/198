@@ -5,6 +5,7 @@ from telegram.ext import (
     Application,
     CommandHandler,
     MessageHandler,
+    ConversationHandler,
     filters,
     ContextTypes,
 )
@@ -13,6 +14,9 @@ from database import (
     add_user,
     check_user_paid,
     check_materials_sent,
+    user_exists,
+    get_user_info,
+    mark_materials_sent,
     get_all_users,
 )
 
@@ -37,6 +41,9 @@ logger = logging.getLogger(__name__)
 # Константы (позже переместить в config.py)
 BOT_TOKEN = "YOUR_BOT_TOKEN"  # Получить от @BotFather в Telegram
 ADMIN_ID = 123456789  # Получить через @userinfobot
+
+# Состояния для отправки материалов конкретному клиенту
+WAITING_USER_ID, WAITING_MATERIAL = range(2)
 
 # Клавиатуры
 def get_main_keyboard():
@@ -324,25 +331,275 @@ async def handle_admin_message(update: Update, context: ContextTypes.DEFAULT_TYP
 
     if text == "👥 Список клиентов":
         await show_clients_list(update, context)
-    elif text == "📤 Отправить материал":
-        # Будет реализовано в Задаче 5
-        pass
     elif text == "📢 Рассылка всем":
         # Будет реализовано в Задаче 6
         pass
     elif text == "💰 Отметить оплату":
         # Будет реализовано в Задаче 7
         pass
+    # "📤 Отправить материал" обрабатывается через ConversationHandler
+
+# ConversationHandler functions for sending materials
+async def send_material_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Начало процесса отправки материала"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    if not is_admin(user_id):
+        return ConversationHandler.END
+
+    try:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=(
+                "📤 ОТПРАВКА МАТЕРИАЛА\n\n"
+                "Введите ID клиента (можно скопировать из списка):\n\n"
+                "Используйте команду /cancel для отмены"
+            )
+        )
+
+        logger.info(f"Admin {user_id} started send material process")
+        return WAITING_USER_ID
+
+    except Exception as e:
+        logger.error(f"Error in send_material_start: {e}")
+        await context.bot.send_message(chat_id=chat_id, text="❌ Произошла ошибка")
+        return ConversationHandler.END
+
+async def send_material_get_user_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Получить ID клиента"""
+    admin_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    try:
+        user_id_str = update.message.text.strip()
+
+        # Проверить, что это число
+        try:
+            target_user_id = int(user_id_str)
+        except ValueError:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=(
+                    "❌ Неверный формат ID. ID должен быть числом.\n\n"
+                    "Попробуйте ещё раз или используйте /cancel для отмены"
+                )
+            )
+            return WAITING_USER_ID
+
+        # Проверить существование пользователя
+        if not user_exists(target_user_id):
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=(
+                    f"❌ Клиент с ID `{target_user_id}` не найден.\n\n"
+                    "Проверьте ID и попробуйте ещё раз или используйте /cancel для отмены"
+                ),
+                parse_mode='Markdown'
+            )
+            return WAITING_USER_ID
+
+        # Получить информацию о клиенте
+        user_info = get_user_info(target_user_id)
+
+        if not user_info:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text="❌ Не удалось получить информацию о клиенте"
+            )
+            return WAITING_USER_ID
+
+        # Сохранить ID в контексте
+        context.user_data['target_user_id'] = target_user_id
+        context.user_data['target_user_info'] = user_info
+
+        # Показать информацию о клиенте
+        client_info_text = (
+            "✅ Клиент найден:\n\n"
+            f"ID: `{user_info['user_id']}`\n"
+            f"Имя: {user_info['first_name']}\n"
+            f"Username: @{user_info['username']}\n"
+            f"Оплата: {'✅ Да' if user_info['paid'] else '❌ Нет'}\n"
+            f"Материалы: {'✅ Отправлены' if user_info['materials_sent'] else '⏳ Не отправлены'}\n\n"
+            "Теперь отправьте материал (фото, видео, документ или текст):"
+        )
+
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=client_info_text,
+            parse_mode='Markdown'
+        )
+
+        logger.info(f"Admin {admin_id} selected target user {target_user_id}")
+        return WAITING_MATERIAL
+
+    except Exception as e:
+        logger.error(f"Error in send_material_get_user_id: {e}")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ Произошла ошибка при обработке ID"
+        )
+        return ConversationHandler.END
+
+async def send_material_get_material(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Получить материал и отправить клиенту"""
+    admin_id = update.effective_user.id
+    admin_chat_id = update.effective_chat.id
+
+    try:
+        target_user_id = context.user_data.get('target_user_id')
+        target_user_info = context.user_data.get('target_user_info')
+
+        if not target_user_id:
+            await context.bot.send_message(
+                chat_id=admin_chat_id,
+                text="❌ Ошибка: информация о клиенте потеряна"
+            )
+            return ConversationHandler.END
+
+        # Определить тип материала
+        material_type = None
+        material_file_id = None
+
+        if update.message.photo:
+            material_type = "фото"
+            material_file_id = update.message.photo[-1].file_id  # Берём самое высокое разрешение
+        elif update.message.video:
+            material_type = "видео"
+            material_file_id = update.message.video.file_id
+        elif update.message.document:
+            material_type = "документ"
+            material_file_id = update.message.document.file_id
+        elif update.message.text:
+            material_type = "текст"
+        else:
+            await context.bot.send_message(
+                chat_id=admin_chat_id,
+                text=(
+                    "❌ Неподдерживаемый тип файла. "
+                    "Отправьте фото, видео, документ или текст."
+                )
+            )
+            return WAITING_MATERIAL
+
+        # Отправить материал клиенту
+        try:
+            emoji_map = {
+                "фото": "📸",
+                "видео": "🎥",
+                "документ": "📄",
+                "текст": "📝"
+            }
+            emoji = emoji_map.get(material_type, "📦")
+
+            caption = f"{emoji} Ваши материалы:"
+
+            if material_type == "фото":
+                await context.bot.send_photo(
+                    chat_id=target_user_id,
+                    photo=material_file_id,
+                    caption=caption,
+                    parse_mode='HTML'
+                )
+            elif material_type == "видео":
+                await context.bot.send_video(
+                    chat_id=target_user_id,
+                    video=material_file_id,
+                    caption=caption,
+                    parse_mode='HTML'
+                )
+            elif material_type == "документ":
+                await context.bot.send_document(
+                    chat_id=target_user_id,
+                    document=material_file_id,
+                    caption=caption,
+                    parse_mode='HTML'
+                )
+            elif material_type == "текст":
+                await context.bot.send_message(
+                    chat_id=target_user_id,
+                    text=f"{caption}\n\n{update.message.text}"
+                )
+
+            # Отметить в БД что материалы отправлены
+            mark_materials_sent(target_user_id)
+
+            # Подтвердить админу
+            confirmation_text = (
+                f"✅ Материал ({material_type}) отправлен клиенту "
+                f"{target_user_info['first_name']} (ID: `{target_user_id}`)\n\n"
+                "Используйте /admin для возврата в админ-панель"
+            )
+
+            await context.bot.send_message(
+                chat_id=admin_chat_id,
+                text=confirmation_text,
+                parse_mode='Markdown'
+            )
+
+            logger.info(
+                f"Admin {admin_id} sent {material_type} material to user {target_user_id}"
+            )
+
+        except Exception as send_error:
+            # Если клиент заблокировал бота или другая ошибка
+            if "blocked" in str(send_error).lower() or "user is deactivated" in str(send_error).lower():
+                await context.bot.send_message(
+                    chat_id=admin_chat_id,
+                    text=(
+                        f"❌ Не удалось отправить материал клиенту {target_user_info['first_name']}.\n\n"
+                        "Возможно, клиент заблокировал бота или удалил аккаунт."
+                    )
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=admin_chat_id,
+                    text=f"❌ Ошибка при отправке материала: {str(send_error)}"
+                )
+
+            logger.error(f"Error sending material to user {target_user_id}: {send_error}")
+            return ConversationHandler.END
+
+        return ConversationHandler.END
+
+    except Exception as e:
+        logger.error(f"Error in send_material_get_material: {e}")
+        await context.bot.send_message(
+            chat_id=admin_chat_id,
+            text="❌ Произошла ошибка при обработке материала"
+        )
+        return ConversationHandler.END
+
+async def cancel_send_material(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Отмена отправки материала"""
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    try:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=(
+                "❌ Отправка материала отменена.\n\n"
+                "Используйте /admin для возврата в админ-панель"
+            )
+        )
+
+        logger.info(f"Admin {user_id} cancelled send material operation")
+
+    except Exception as e:
+        logger.error(f"Error in cancel_send_material: {e}")
+
+    return ConversationHandler.END
 
 def main():
     """Запуск бота"""
     # Инициализировать БД
     init_db()
     logger.info("Database initialized")
-    
+
     # Создать Application
     app = Application.builder().token(BOT_TOKEN).build()
-    
+
     # Добавить обработчики в правильном порядке
     # Сначала команды, потом остальное
     # Обработчики для клиентов
@@ -355,7 +612,26 @@ def main():
     # Универсальный обработчик сообщений для кнопок
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_admin_message))
-    
+
+    # ConversationHandler для отправки материалов
+    send_material_handler = ConversationHandler(
+        entry_points=[MessageHandler(filters.TEXT & filters.Regex("^📤 Отправить материал$"), send_material_start)],
+        states={
+            WAITING_USER_ID: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, send_material_get_user_id)
+            ],
+            WAITING_MATERIAL: [
+                MessageHandler(
+                    filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.TEXT,
+                    send_material_get_material
+                )
+            ],
+        },
+        fallbacks=[CommandHandler("cancel", cancel_send_material)],
+    )
+
+    app.add_handler(send_material_handler)
+
     # Запустить бота
     logger.info("Bot started polling")
     app.run_polling()
